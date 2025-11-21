@@ -96,7 +96,7 @@
           <p class="lead">Interactive ROI mini-charts • Drawer with expanded ROI and amortization • KPIs at the top</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff K Customer</strong></div>
+          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff L Customer</strong></div>
         </div>
       </div>
       <div class="current-date">Current Month: <strong id="currentMonthLabel">18</strong> (months since first purchase)</div>
@@ -362,13 +362,17 @@ svg.appendChild(hoverGroup);
   var idx = Math.round((x - pad) / stepX);
   idx = Math.max(0, Math.min(schedule.length - 1, idx));
 
-  var px = pad + idx * stepX;
+  // Use the true curve X position instead of a stepped index pixel
+var val = schedule[idx].roi;
+var xy = toXY(val, idx);
+var cx = xy[0];
+var cy = xy[1];
 
-  // Move vertical hover line
-  vLine.setAttribute('x1', px);
-  vLine.setAttribute('x2', px);
-  vLine.setAttribute('y1', pad);
-  vLine.setAttribute('y2', h - pad);
+// Move vertical hover line exactly under the circle
+vLine.setAttribute('x1', cx);
+vLine.setAttribute('x2', cx);
+vLine.setAttribute('y1', pad);
+vLine.setAttribute('y2', h - pad);
 
   // Clear hover group
   hoverGroup.innerHTML = '';
