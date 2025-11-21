@@ -355,47 +355,42 @@ svg.innerHTML =
       var hoverGroup = document.createElementNS(svgNS, 'g');
 hoverGroup.setAttribute("class", "drawer-hover");
 svg.appendChild(hoverGroup);
-      svg.addEventListener('mousemove', function(ev){
-  var rect = svg.getBoundingClientRect();
-  var x = ev.clientX - rect.left;
+     svg.addEventListener('mousemove', function(ev){
+  const rect = svg.getBoundingClientRect();
 
-  var idx = Math.round((x - pad) / stepX);
+  // Convert mouse → SVG coordinate system
+  const scaleX = w / rect.width;   // w = 480
+  const svgX = (ev.clientX - rect.left) * scaleX;
+
+  // Find the nearest data index
+  let idx = Math.round((svgX - pad) / stepX);
   idx = Math.max(0, Math.min(schedule.length - 1, idx));
 
-  // Use the true curve X position instead of a stepped index pixel
-var val = schedule[idx].roi;
-var xy = toXY(val, idx);
-var cx = xy[0];
-var cy = xy[1];
+  const val = schedule[idx].roi;
+  const [cx, cy] = toXY(val, idx);
 
-// Move vertical hover line exactly under the circle
-vLine.setAttribute('x1', cx);
-vLine.setAttribute('x2', cx);
-vLine.setAttribute('y1', pad);
-vLine.setAttribute('y2', h - pad);
+  // Move vertical hover line
+  vLine.setAttribute("x1", cx);
+  vLine.setAttribute("x2", cx);
+  vLine.setAttribute("y1", pad);
+  vLine.setAttribute("y2", h - pad);
 
-  // Clear hover group
-  hoverGroup.innerHTML = '';
-
-  // Add circle like mini-chart
-  var val = schedule[idx].roi;
-  var xy = toXY(val, idx);
-  var cx = xy[0], cy = xy[1];
-
-  var c = document.createElementNS(svgNS, 'circle');
-  c.setAttribute('cx', cx);
-  c.setAttribute('cy', cy);
-  c.setAttribute('r', 3.6);
-  c.setAttribute('fill', '#0ea5e9');
-  c.setAttribute('stroke', '#fff');
-  c.setAttribute('stroke-width', '1');
+  // Draw hover circle
+  hoverGroup.innerHTML = "";
+  const c = document.createElementNS(svgNS, "circle");
+  c.setAttribute("cx", cx);
+  c.setAttribute("cy", cy);
+  c.setAttribute("r", 3.6);
+  c.setAttribute("fill", "#0ea5e9");
+  c.setAttribute("stroke", "#fff");
+  c.setAttribute("stroke-width", "1");
   hoverGroup.appendChild(c);
 
-  // Tooltip aligned to the hover circle
-tooltip.style.display = 'block';
-tooltip.style.left = (rect.left + cx) + 'px';
-tooltip.style.top = (rect.top + cy - 18) + 'px';
-tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
+  // Tooltip directly above circle
+  tooltip.style.display = 'block';
+  tooltip.style.left = (rect.left + (cx / scaleX)) + 'px';
+  tooltip.style.top = (rect.top + (cy / scaleX) - 18) + 'px';
+  tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
 });        
       svg.addEventListener('mouseleave', function(){
   hoverGroup.innerHTML = '';
