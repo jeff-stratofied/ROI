@@ -320,9 +320,29 @@ svg.innerHTML =
       var path=''; schedule.forEach(function(p,i){ var xy = toXY(p.roi,i); path += (i===0?('M ' + xy[0] + ' ' + xy[1]):(' L ' + xy[0] + ' ' + xy[1])); }); var el=document.createElementNS(svgNS,'path'); el.setAttribute('d',path); el.setAttribute('fill','none'); el.setAttribute('stroke','#0ea5e9'); el.setAttribute('stroke-width','2'); svg.appendChild(el);
       var curIdx = Math.min(CURRENT_MONTH-1, schedule.length-1); var curX = pad + Math.max(0,curIdx)*stepX; var curLine=document.createElementNS(svgNS,'line'); curLine.setAttribute('x1',curX); curLine.setAttribute('x2',curX); curLine.setAttribute('y1',pad); curLine.setAttribute('y2',h-pad); curLine.setAttribute('stroke','#111827'); curLine.setAttribute('stroke-dasharray','3 4'); curLine.setAttribute('stroke-opacity','0.6'); svg.appendChild(curLine);
       var vLine=document.createElementNS(svgNS,'line'); vLine.setAttribute('stroke','#0f172a'); vLine.setAttribute('stroke-width','1'); vLine.setAttribute('stroke-dasharray','3 4'); vLine.setAttribute('opacity','0.6'); svg.appendChild(vLine);
-      var circles=document.createElementNS(svgNS,'g'); svg.appendChild(circles);
-      svg.addEventListener('mousemove', function(ev){ var rect=svg.getBoundingClientRect(); var x=ev.clientX-rect.left; var idx=Math.round((x-pad)/stepX); idx=Math.max(0,Math.min(schedule.length-1,idx)); var px = pad + idx*stepX; vLine.setAttribute('x1',px); vLine.setAttribute('x2',px); vLine.setAttribute('y1',pad); vLine.setAttribute('y2',h-pad); circles.innerHTML=''; var val=schedule[idx].roi; var xy=toXY(val,idx); var cx=xy[0], cy=xy[1]; var c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',4); c.setAttribute('fill','#0ea5e9'); c.setAttribute('stroke','#fff'); c.setAttribute('stroke-width','1.2'); circles.appendChild(c); tooltip.style.display='block'; tooltip.style.left=(rect.left+px)+'px'; tooltip.style.top=(rect.top+16)+'px'; tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (schedule[idx].roi*100).toFixed(2) + '%'; });
-      svg.addEventListener('mouseleave', function(){ vLine.setAttribute('x1',0); vLine.setAttribute('x2',0); circles.innerHTML=''; tooltip.style.display='none'; });
+      var hoverGroup = document.createElementNS(svgNS, 'g');
+svg.appendChild(hoverGroup);
+      svg.addEventListener('mousemove', function(ev){ var rect=svg.getBoundingClientRect(); var x=ev.clientX-rect.left; var idx=Math.round((x-pad)/stepX); idx=Math.max(0,Math.min(schedule.length-1,idx)); var px = pad + idx*stepX; vLine.setAttribute('x1',px); vLine.setAttribute('x2',px); vLine.setAttribute('y1',pad); vLine.setAttribute('y2',h-pad); hoverGroup.innerHTML = '';
+
+var val = schedule[idx].roi;
+var xy = toXY(val, idx);
+var cx = xy[0], cy = xy[1];
+
+var c = document.createElementNS(svgNS, 'circle');
+c.setAttribute('cx', cx);
+c.setAttribute('cy', cy);
+c.setAttribute('r', 3.6);
+c.setAttribute('fill', '#0ea5e9');
+c.setAttribute('stroke', '#fff');
+c.setAttribute('stroke-width', '1');
+hoverGroup.appendChild(c);
+
+tooltip.style.display = 'block';
+tooltip.style.left = (rect.left + px) + 'px';
+tooltip.style.top = (rect.top - 10) + 'px';
+tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%'; });
+      svg.addEventListener('mouseleave', function(){ vLine.setAttribute('x1',0); vLine.setAttribute('x2',0); hoverGroup.innerHTML = '';
+tooltip.style.display = 'none'; });
       drawerChartArea.appendChild(svg);
 // ----------------------
 // Populate ROI table below the chart
