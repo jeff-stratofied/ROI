@@ -40,7 +40,16 @@
     .drawer.open{ transform:translateX(0) }
     .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px }
     .close-btn{ background:#f1f5f9; border:none; padding:8px; border-radius:8px; cursor:pointer }
-    .drawer-chart{ height:220px; background:linear-gradient(180deg,#ffffff,#fcfeff); border-radius:8px; border:1px solid rgba(15,23,42,0.03); display:flex; align-items:center; justify-content:center; margin-bottom:8px; position:relative; padding:8px }
+    .drawer-chart {
+  height:220px;
+  background:linear-gradient(180deg,#ffffff,#fcfeff);
+  border-radius:8px;
+  border:1px solid rgba(15,23,42,0.03);
+  display:block;                 /* ⬅ CHANGED (removes centering) */
+  position:relative;
+  margin-bottom:8px;
+  padding:12px;                  /* keeps nice spacing */
+}
 
 /* Drawer info layout improvements */
 .drawer .drawer-info-row { display:flex; gap:10px; margin-bottom:8px; }
@@ -344,7 +353,16 @@ svg.innerHTML =
       currentMode='loan'; currentLoan=loan; drawerTitle.textContent = 'Loan ' + loan.id; drawerSub.textContent = 'Purchased: ' + loan.purchaseDate; drawerPrimary.textContent = '$' + loan.purchasePrice.toLocaleString(); drawerSecondary.textContent = (loan.nominalRate*100).toFixed(2) + '%' 
 
       drawerChartArea.innerHTML=''; drawerLegend.style.display='flex'; drawerLegend.innerHTML = '<div class=\"item\"><span class=\"sw\" style=\"background:#0f172a\"></span>Balance</div><div class=\"item\"><span class=\"sw\" style=\"background:#0ea5e9\"></span>ROI</div>';
-      var svgNS='http://www.w3.org/2000/svg'; var w=480,h=240,pad=28; var svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('viewBox','0 0 ' + w + ' ' + h); svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
+      var svgNS='http://www.w3.org/2000/svg'; var w=480,h=240,pad=28; 
+    
+      var svg=document.createElementNS(svgNS,'svg'); 
+      svg.setAttribute('viewBox','0 0 ' + w + ' ' + h); 
+      svg.setAttribute('width','100%'); 
+      svg.setAttribute('height','100%');
+      svg.style.display = "block";   // prevents inline SVG from shrinking
+svg.style.width = "100%";      // ensures full drawer width
+svg.style.height = "240px";    // consistent fixed height
+      
       var schedule = loan.roiSeries; var vals = schedule.map(function(s){return s.roi;}); var maxV=Math.max.apply(null, vals), minV=Math.min.apply(null, vals), range=Math.max(1e-6,maxV-minV);
       var stepX = (w - pad*2) / Math.max(1, schedule.length - 1);
       function toXY(val,i){ var x = pad + i*stepX; var y = pad + (h - pad*2) - ((val - minV)/range)*(h - pad*2); return [x,y]; }
