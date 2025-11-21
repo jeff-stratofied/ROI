@@ -36,7 +36,22 @@
     .mini-label{ font-size:12px; color:var(--muted); margin-bottom:6px }
     svg.sparkline{ width:170px; height:48px; display:block }
 
-    .drawer{ position:fixed; right:0; top:0; height:100vh; width:860px; background:var(--card); box-shadow:-28px 0 80px rgba(2,6,23,0.14); transform:translateX(110%); transition:transform .28s cubic-bezier(.2,.9,.3,1); z-index:90; overflow:auto; padding:20px }
+    .drawer{
+  position:fixed;
+  right:0;
+  top:0;
+  height:100vh;
+  max-width:1000px;        /* allow full expansion */
+  width:auto;              /* grows based on content */
+  min-width:760px;         /* ensures good layout */
+  background:var(--card);
+  box-shadow:-28px 0 80px rgba(2,6,23,0.14);
+  transform:translateX(110%);
+  transition:transform .28s cubic-bezier(.2,.9,.3,1);
+  z-index:90;
+  overflow:auto;
+  padding:20px;
+}
     .drawer.open{ transform:translateX(0) }
     .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px }
     .close-btn{ background:#f1f5f9; border:none; padding:8px; border-radius:8px; cursor:pointer }
@@ -354,7 +369,12 @@ svg.innerHTML =
       currentMode='loan'; currentLoan=loan; drawerTitle.textContent = 'Loan ' + loan.id; drawerSub.textContent = 'Purchased: ' + loan.purchaseDate; drawerPrimary.textContent = '$' + loan.purchasePrice.toLocaleString(); drawerSecondary.textContent = (loan.nominalRate*100).toFixed(2) + '%' 
 
       drawerChartArea.innerHTML=''; drawerLegend.style.display='flex'; drawerLegend.innerHTML = '<div class=\"item\"><span class=\"sw\" style=\"background:#0f172a\"></span>Balance</div><div class=\"item\"><span class=\"sw\" style=\"background:#0ea5e9\"></span>ROI</div>';
-      var svgNS='http://www.w3.org/2000/svg'; var w=480,h=240,pad=28; 
+      var svgNS='http://www.w3.org/2000/svg'; 
+      // Drawer chart uses full available width
+const chartRect = drawerChartArea.getBoundingClientRect();
+var w = chartRect.width;      // dynamic
+var h = 260;
+var pad = 28; 
     
       var svg=document.createElementNS(svgNS,'svg'); 
       svg.setAttribute('viewBox','0 0 ' + w + ' ' + h); 
@@ -377,9 +397,9 @@ svg.appendChild(hoverGroup);
      svg.addEventListener('mousemove', function(ev){
   const rect = svg.getBoundingClientRect();
 
-  // Convert mouse → SVG coordinate system
-  const scaleX = w / rect.width;   // w = 480
-  const svgX = (ev.clientX - rect.left) * scaleX;
+  
+  // mouse X in SVG space (1:1 mapping since SVG width=100%)
+const svgX = ev.clientX - rect.left;
 
   // Find the nearest data index
   let idx = Math.round((svgX - pad) / stepX);
@@ -407,8 +427,8 @@ svg.appendChild(hoverGroup);
 
   // Tooltip directly above circle
   tooltip.style.display = 'block';
-  tooltip.style.left = (rect.left + (cx / scaleX)) + 'px';
-  tooltip.style.top = (rect.top + (cy / scaleX) - 18) + 'px';
+  tooltip.style.left = (rect.left + cx) + 'px';
+tooltip.style.top = (rect.top + pad - 26) + 'px';  // always top area
   tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
 });        
       svg.addEventListener('mouseleave', function(){
