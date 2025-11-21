@@ -391,12 +391,12 @@ vLine.setAttribute('y2', h - pad);
   c.setAttribute('stroke-width', '1');
   hoverGroup.appendChild(c);
 
-  // Tooltip identical to mini-charts
-  tooltip.style.display = 'block';
-  tooltip.style.left = (rect.left + px) + 'px';
-  tooltip.style.top = (rect.top - 10) + 'px';
-  tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
-});
+  // Tooltip aligned to the hover circle
+tooltip.style.display = 'block';
+tooltip.style.left = (rect.left + cx) + 'px';
+tooltip.style.top = (rect.top + cy - 18) + 'px';
+tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
+        
       svg.addEventListener('mouseleave', function(){
   hoverGroup.innerHTML = '';
   tooltip.style.display = 'none';
