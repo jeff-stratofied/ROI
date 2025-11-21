@@ -100,20 +100,7 @@
 
       <div id="drawerExtra"></div>
 
-      <div id="drawerAmortContainer">
-        <h3 style="margin-top:8px">Amortization</h3>
-        <div class="amort-wrap" id="amortWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Month</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th>
-              </tr>
-            </thead>
-            <tbody id="amortBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+     
 
     <div class="actions" style="padding-top:10px">
       <button class="btn" id="printBtn">Print</button>
@@ -246,7 +233,8 @@
 
     function openDrawerForLoan(loan){
       currentMode='loan'; currentLoan=loan; drawerTitle.textContent = 'Loan ' + loan.id; drawerSub.textContent = 'Purchased: ' + loan.purchaseDate; drawerPrimary.textContent = '$' + loan.purchasePrice.toLocaleString(); drawerSecondary.textContent = (loan.nominalRate*100).toFixed(2) + '%';
-      drawerAmortContainer.style.display='block'; amortBody.innerHTML=''; loan.amort.schedule.forEach(function(r){ var tr=document.createElement('tr'); tr.innerHTML = '<td style="text-align:left">' + r.monthIndex + '</td><td style="text-align:right">$' + Number(r.payment).toFixed(2) + '</td><td style="text-align:right">$' + Number(r.principalPaid).toFixed(2) + '</td><td style="text-align:right">$' + Number(r.interest).toFixed(2) + '</td><td style="text-align:right">$' + Number(r.balance).toFixed(2) + '</td>'; amortBody.appendChild(tr); });
+      
+      
 
       drawerChartArea.innerHTML=''; drawerLegend.style.display='flex'; drawerLegend.innerHTML = '<div class=\"item\"><span class=\"sw\" style=\"background:#0f172a\"></span>Balance</div><div class=\"item\"><span class=\"sw\" style=\"background:#0ea5e9\"></span>ROI</div>';
       var svgNS='http://www.w3.org/2000/svg'; var w=480,h=240,pad=28; var svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('viewBox','0 0 ' + w + ' ' + h); svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
@@ -267,10 +255,10 @@
 
     document.querySelectorAll('.kpi').forEach(function(k){ k.addEventListener('click', function(ev){ ev.stopPropagation(); var key=k.getAttribute('data-kpi'); if(key==='distribution') renderDistributionDrawer(); if(key==='tpv') renderTPVDrawer(); if(key==='rates') renderRatesDrawer(); if(key==='payments') renderPaymentsDrawer(); }); });
 
-    function renderTPVDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Portfolio — Weighted ROI'; drawerSub.textContent='Snapshot'; drawerPrimary.textContent = ''; drawerSecondary.textContent = ''; drawerAmortContainer.style.display='none'; drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Weighted ROI to date</strong><div style=\"font-size:18px;font-weight:800;margin-top:6px\">' + (kpis.weightedROI*100).toFixed(2) + '%</div></div>'; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
-    function renderDistributionDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Distribution'; drawerSub.textContent='Loans by purchase month'; drawerAmortContainer.style.display='none'; drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Loans</strong><div style=\"max-height:220px;overflow:auto;margin-top:6px;border-radius:6px;padding:6px;border:1px solid #f0f3f7\"><table style=\"width:100%;font-size:13px\"><thead><tr><th>Loan</th><th>Purchase</th><th>Rate</th></tr></thead><tbody>' + loansWithAmort.map(function(l){ return '<tr><td style=\"text-align:left\">Loan ' + l.id + '</td><td style=\"text-align:left\">' + l.purchaseDate + '</td><td style=\"text-align:left\">' + (l.nominalRate*100).toFixed(2) + '%</td></tr>'; }).join('') + '</tbody></table></div></div>'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
-    function renderRatesDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Rates Distribution'; drawerSub.textContent='Histogram of nominal rates'; drawerAmortContainer.style.display='none'; drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
-    function renderPaymentsDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Payments'; drawerSub.textContent='Expected monthly payments'; drawerAmortContainer.style.display='none'; drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
+    function renderTPVDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Portfolio — Weighted ROI'; drawerSub.textContent='Snapshot'; drawerPrimary.textContent = ''; drawerSecondary.textContent = '';  drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Weighted ROI to date</strong><div style=\"font-size:18px;font-weight:800;margin-top:6px\">' + (kpis.weightedROI*100).toFixed(2) + '%</div></div>'; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
+    function renderDistributionDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Distribution'; drawerSub.textContent='Loans by purchase month';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Loans</strong><div style=\"max-height:220px;overflow:auto;margin-top:6px;border-radius:6px;padding:6px;border:1px solid #f0f3f7\"><table style=\"width:100%;font-size:13px\"><thead><tr><th>Loan</th><th>Purchase</th><th>Rate</th></tr></thead><tbody>' + loansWithAmort.map(function(l){ return '<tr><td style=\"text-align:left\">Loan ' + l.id + '</td><td style=\"text-align:left\">' + l.purchaseDate + '</td><td style=\"text-align:left\">' + (l.nominalRate*100).toFixed(2) + '%</td></tr>'; }).join('') + '</tbody></table></div></div>'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
+    function renderRatesDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Rates Distribution'; drawerSub.textContent='Histogram of nominal rates';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
+    function renderPaymentsDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Payments'; drawerSub.textContent='Expected monthly payments';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
 
     function amortToCSV(loan){ var rows=[['Month','Payment','Principal','Interest','Balance']]; loan.amort.schedule.forEach(function(r){ rows.push([r.monthIndex, r.payment.toFixed(2), r.principalPaid.toFixed(2), r.interest.toFixed(2), r.balance.toFixed(2)]); }); return rows.map(function(r){ return r.join(','); }).join('\n'); }
     document.getElementById('copyCsvBtn')?.addEventListener('click', async function(){ if(currentMode!=='loan' || !currentLoan) return alert('Open an individual loan drawer to copy CSV'); var csv=amortToCSV(currentLoan); try{ await navigator.clipboard.writeText(csv); alert('CSV copied to clipboard'); }catch(e){ alert('Copy failed — browser denied clipboard access'); } });
