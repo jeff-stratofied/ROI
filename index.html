@@ -96,7 +96,7 @@
           <p class="lead">Interactive ROI mini-charts • Drawer with expanded ROI and amortization • KPIs at the top</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff H Customer</strong></div>
+          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff J Customer</strong></div>
         </div>
       </div>
       <div class="current-date">Current Month: <strong id="currentMonthLabel">18</strong> (months since first purchase)</div>
@@ -295,8 +295,13 @@ svg.innerHTML =
         tooltip.style.left = (ev.clientX) + 'px'; tooltip.style.top = (ev.clientY - 10) + 'px'; tooltip.style.display='block'; tooltip.innerHTML = 'M' + p.month + ' • ROI ' + (p.roi*100).toFixed(2) + '%';
         var hoverG = svg.querySelector('g.mini-hover'); hoverG.innerHTML='';
         var svgNS='http://www.w3.org/2000/svg'; var stepX = (w - pad*2) / Math.max(1, loan.roiSeries.length - 1); var iX = pad + idxNearest*stepX;
-        var vals = loan.roiSeries.map(function(rr){return rr.roi;}); var minV=Math.min.apply(null, vals), maxV=Math.max.apply(null, vals), rangeV=Math.max(1e-6, maxV-minV);
-        var cy = pad + (h-pad*2) - ((p.roi - minV)/rangeV)*(h-pad*2);
+        // Use the SAME scaling as the sparkline path
+const ys = pts.map(pt => pt.y);       // miniPts ROI values
+const minY = Math.min(...ys);
+const maxY = Math.max(...ys);
+const rangeY = Math.max(1e-6, maxY - minY);
+
+const cy = pad + (h - pad*2) - ((p.roi - minY) / rangeY) * (h - pad*2);
         var c = document.createElementNS(svgNS,'circle'); c.setAttribute('cx', iX); c.setAttribute('cy', cy); c.setAttribute('r',3.6); c.setAttribute('fill','#0ea5e9'); c.setAttribute('stroke','#fff'); c.setAttribute('stroke-width','1'); hoverG.appendChild(c);
       });
       svg.addEventListener('mouseleave', function(){ tooltip.style.display='none'; var hoverG=svg.querySelector('g.mini-hover'); if(hoverG) hoverG.innerHTML=''; });
