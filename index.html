@@ -96,7 +96,7 @@
           <p class="lead">Interactive ROI mini-charts • Drawer with expanded ROI and amortization • KPIs at the top</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff I Customer</strong></div>
+          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff H Customer</strong></div>
         </div>
       </div>
       <div class="current-date">Current Month: <strong id="currentMonthLabel">18</strong> (months since first purchase)</div>
@@ -321,28 +321,50 @@ svg.innerHTML =
       var curIdx = Math.min(CURRENT_MONTH-1, schedule.length-1); var curX = pad + Math.max(0,curIdx)*stepX; var curLine=document.createElementNS(svgNS,'line'); curLine.setAttribute('x1',curX); curLine.setAttribute('x2',curX); curLine.setAttribute('y1',pad); curLine.setAttribute('y2',h-pad); curLine.setAttribute('stroke','#111827'); curLine.setAttribute('stroke-dasharray','3 4'); curLine.setAttribute('stroke-opacity','0.6'); svg.appendChild(curLine);
       var vLine=document.createElementNS(svgNS,'line'); vLine.setAttribute('stroke','#0f172a'); vLine.setAttribute('stroke-width','1'); vLine.setAttribute('stroke-dasharray','3 4'); vLine.setAttribute('opacity','0.6'); svg.appendChild(vLine);
       var hoverGroup = document.createElementNS(svgNS, 'g');
+hoverGroup.setAttribute("class", "drawer-hover");
 svg.appendChild(hoverGroup);
-      svg.addEventListener('mousemove', function(ev){ var rect=svg.getBoundingClientRect(); var x=ev.clientX-rect.left; var idx=Math.round((x-pad)/stepX); idx=Math.max(0,Math.min(schedule.length-1,idx)); var px = pad + idx*stepX; vLine.setAttribute('x1',px); vLine.setAttribute('x2',px); vLine.setAttribute('y1',pad); vLine.setAttribute('y2',h-pad); hoverGroup.innerHTML = '';
+      svg.addEventListener('mousemove', function(ev){
+  var rect = svg.getBoundingClientRect();
+  var x = ev.clientX - rect.left;
 
-var val = schedule[idx].roi;
-var xy = toXY(val, idx);
-var cx = xy[0], cy = xy[1];
+  var idx = Math.round((x - pad) / stepX);
+  idx = Math.max(0, Math.min(schedule.length - 1, idx));
 
-var c = document.createElementNS(svgNS, 'circle');
-c.setAttribute('cx', cx);
-c.setAttribute('cy', cy);
-c.setAttribute('r', 3.6);
-c.setAttribute('fill', '#0ea5e9');
-c.setAttribute('stroke', '#fff');
-c.setAttribute('stroke-width', '1');
-hoverGroup.appendChild(c);
+  var px = pad + idx * stepX;
 
-tooltip.style.display = 'block';
-tooltip.style.left = (rect.left + px) + 'px';
-tooltip.style.top = (rect.top - 10) + 'px';
-tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%'; });
-      svg.addEventListener('mouseleave', function(){ vLine.setAttribute('x1',0); vLine.setAttribute('x2',0); hoverGroup.innerHTML = '';
-tooltip.style.display = 'none'; });
+  // Move vertical hover line
+  vLine.setAttribute('x1', px);
+  vLine.setAttribute('x2', px);
+  vLine.setAttribute('y1', pad);
+  vLine.setAttribute('y2', h - pad);
+
+  // Clear hover group
+  hoverGroup.innerHTML = '';
+
+  // Add circle like mini-chart
+  var val = schedule[idx].roi;
+  var xy = toXY(val, idx);
+  var cx = xy[0], cy = xy[1];
+
+  var c = document.createElementNS(svgNS, 'circle');
+  c.setAttribute('cx', cx);
+  c.setAttribute('cy', cy);
+  c.setAttribute('r', 3.6);
+  c.setAttribute('fill', '#0ea5e9');
+  c.setAttribute('stroke', '#fff');
+  c.setAttribute('stroke-width', '1');
+  hoverGroup.appendChild(c);
+
+  // Tooltip identical to mini-charts
+  tooltip.style.display = 'block';
+  tooltip.style.left = (rect.left + px) + 'px';
+  tooltip.style.top = (rect.top - 10) + 'px';
+  tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
+});
+      svg.addEventListener('mouseleave', function(){
+  hoverGroup.innerHTML = '';
+  tooltip.style.display = 'none';
+});
       drawerChartArea.appendChild(svg);
 // ----------------------
 // Populate ROI table below the chart
