@@ -152,7 +152,14 @@
       const amort = calcAmort(l.purchasePrice, l.nominalRate, l.termYears, l.graceYears);
       let cumP=0, cumI=0, cumTotal=0;
       const cumSchedule = amort.schedule.map(r=>{ cumP=+(cumP+r.principalPaid).toFixed(2); cumI=+(cumI+r.interest).toFixed(2); cumTotal=+(cumTotal+r.payment).toFixed(2); return {...r, cumPrincipal:cumP, cumInterest:cumI, cumTotal}; });
-      const roiSeries = cumSchedule.map(s => { const loanValue = s.balance + s.cumInterest + s.cumTotal; const roi = (loanValue - l.purchasePrice)/l.purchasePrice; return { month:s.monthIndex, roi, loanValue }; });
+      const roiSeries = cumSchedule.map(s => { 
+        const fee = s.monthIndex * 3; 
+        const loanValue = s.balance + s.cumInterest + s.cumTotal - fee; 
+        const roi = (loanValue - l.purchasePrice)/l.purchasePrice; 
+        return { month:s.monthIndex, roi, loanValue, fee,
+                 payment:s.payment, principalPaid:s.principalPaid, 
+                 interest:s.interest, cumInterest:s.cumInterest };
+    });
       const miniPts = roiSeries.slice(0, Math.min(24, roiSeries.length)).map(s=>({ x:s.month, y:s.roi }));
       return {...l, amort, cumSchedule, roiSeries, miniPts };
     });
@@ -231,6 +238,25 @@
     function closeDrawer(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); tooltip.style.display='none'; currentLoan=null; currentMode=null; }
 
     function openDrawerForLoan(loan){
+      // populate ROI table
+      const roiBody=document.getElementById('roiBody');
+      if(roiBody){
+        roiBody.innerHTML='';
+        loan.roiSeries.forEach(r=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML = `
+            <td style="text-align:left">${r.month}</td>
+            <td style="text-align:right">$${(r.payment||0).toFixed(2)}</td>
+            <td style="text-align:right">$${(r.principalPaid||0).toFixed(2)}</td>
+            <td style="text-align:right">$${(r.interest||0).toFixed(2)}</td>
+            <td style="text-align:right">$${(r.cumInterest||0).toFixed(2)}</td>
+            <td style="text-align:right">$${(r.fee||0).toFixed(2)}</td>
+            <td style="text-align:right">$${(r.loanValue||0).toFixed(2)}</td>
+            <td style="text-align:right">${(r.roi*100).toFixed(2)}%</td>`;
+          roiBody.appendChild(tr);
+        });
+      }
+
       currentMode='loan'; currentLoan=loan; drawerTitle.textContent = 'Loan ' + loan.id; drawerSub.textContent = 'Purchased: ' + loan.purchaseDate; drawerPrimary.textContent = '$' + loan.purchasePrice.toLocaleString(); drawerSecondary.textContent = (loan.nominalRate*100).toFixed(2) + '%' 
 
       drawerChartArea.innerHTML=''; drawerLegend.style.display='flex'; drawerLegend.innerHTML = '<div class=\"item\"><span class=\"sw\" style=\"background:#0f172a\"></span>Balance</div><div class=\"item\"><span class=\"sw\" style=\"background:#0ea5e9\"></span>ROI</div>';
