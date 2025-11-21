@@ -46,7 +46,12 @@
 .drawer .drawer-info-row { display:flex; gap:10px; margin-bottom:8px; }
 .drawer .info-card { flex:1; background:#f8fafc; padding:10px; border-radius:8px; }
 .drawer .info-card.small { width:120px; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; }
-.drawer .info-card .muted-small { font-size:12px; color:var(--muted); margin-bottom:6px; }
+.drawer .info-card .muted-small {
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:10px;    /* was 6px */
+  display:block;
+}
     
     .amort-wrap{ border:1px solid rgba(15,23,42,0.04); border-radius:8px; padding:8px; max-height:40vh; overflow:auto }
     table{ width:100%; border-collapse:collapse; font-size:13px }
@@ -91,7 +96,7 @@
           <p class="lead">Interactive ROI mini-charts • Drawer with expanded ROI and amortization • KPIs at the top</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff G Customer</strong></div>
+          <div style="font-size:13px;color:var(--muted)">User: <strong style="color:var(--brand)">Jeff H Customer</strong></div>
         </div>
       </div>
       <div class="current-date">Current Month: <strong id="currentMonthLabel">18</strong> (months since first purchase)</div>
@@ -112,7 +117,18 @@
         <button class="close-btn" id="closeBtn" aria-label="Close drawer">✕</button>
       </div>
     </div>
-
+    
+<div class="drawer-info-row">
+  <div class="info-card">
+    <div class="muted-small" id="drawerPrimaryTitle">Purchase Price</div>
+    <div id="drawerPrimary" style="font-weight:800;font-size:18px"></div>
+  </div>
+  <div class="info-card small">
+    <div class="muted-small" id="drawerSecondaryTitle">Rate</div>
+    <div id="drawerSecondary" style="font-weight:800;font-size:16px"></div>
+  </div>
+</div>
+    
     <div id="drawerBody">
       <div class="drawer-chart" id="drawerChartArea"></div>
 <!-- ROI table (inserted below drawerChartArea) -->
@@ -142,17 +158,6 @@
 
       
       <div class="legend" id="drawerLegend" style="display:none"></div>
-
-      <div class="drawer-info-row">
-  <div class="info-card">
-    <div class="muted-small" id="drawerPrimaryTitle">Purchase Price</div>
-    <div id="drawerPrimary" style="font-weight:800;font-size:18px"></div>
-  </div>
-  <div class="info-card small">
-    <div class="muted-small" id="drawerSecondaryTitle">Rate</div>
-    <div id="drawerSecondary" style="font-weight:800;font-size:16px"></div>
-  </div>
-</div>
 
       <div id="drawerExtra"></div>
 
