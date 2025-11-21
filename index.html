@@ -489,7 +489,155 @@ sched.forEach((r) => {
     document.querySelectorAll('.kpi').forEach(function(k){ k.addEventListener('click', function(ev){ ev.stopPropagation(); var key=k.getAttribute('data-kpi'); if(key==='distribution') renderDistributionDrawer(); if(key==='tpv') renderTPVDrawer(); if(key==='rates') renderRatesDrawer(); if(key==='payments') renderPaymentsDrawer(); }); });
 
     function renderTPVDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Portfolio — Weighted ROI'; drawerSub.textContent='Snapshot'; drawerPrimary.textContent = ''; drawerSecondary.textContent = '';  drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Weighted ROI to date</strong><div style=\"font-size:18px;font-weight:800;margin-top:6px\">' + (kpis.weightedROI*100).toFixed(2) + '%</div></div>'; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
-    function renderDistributionDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Distribution'; drawerSub.textContent='Loans by purchase month';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Loans</strong><div style=\"max-height:220px;overflow:auto;margin-top:6px;border-radius:6px;padding:6px;border:1px solid #f0f3f7\"><table style=\"width:100%;font-size:13px\"><thead><tr><th>Loan</th><th>Purchase</th><th>Rate</th></tr></thead><tbody>' + loansWithAmort.map(function(l){ return '<tr><td style=\"text-align:left\">Loan ' + l.id + '</td><td style=\"text-align:left\">' + l.purchaseDate + '</td><td style=\"text-align:left\">' + (l.nominalRate*100).toFixed(2) + '%</td></tr>'; }).join('') + '</tbody></table></div></div>'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
+    function renderDistributionDrawer(){
+  currentMode = 'kpi';
+  currentLoan = null;
+
+  drawerTitle.textContent = 'Total Loans';
+  drawerSub.textContent = 'Portfolio overview';
+  drawerPrimary.textContent = '';
+  drawerSecondary.textContent = '';
+  
+  // clear drawer
+  drawerChartArea.innerHTML = '';
+  drawerLegend.style.display = 'none';
+  drawerExtra.innerHTML = '';
+
+  //--------------------------------------------------
+  // 1️⃣ PORTFOLIO-LEVEL CHART (matching Amort Page)
+  //--------------------------------------------------
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const chartRect = drawerChartArea.getBoundingClientRect();
+  const w = chartRect.width;
+  const h = 260;
+  const pad = 28;
+
+  // Build cumulative portfolio ROI curve
+  // Use each month up to CURRENT_MONTH and compute weighted ROI
+  const maxMonths = Math.max(...loansWithAmort.map(l=>l.roiSeries.length));
+  const months = Array.from({length:maxMonths},(_,i)=>i+1);
+
+  const weightedSeries = months.map(m=>{
+    let total = 0;
+    let roiWeighted = 0;
+
+    loansWithAmort.forEach(l=>{
+      const idx = Math.min(m-1, l.roiSeries.length-1);
+      const r = l.roiSeries[idx].roi;
+      total += l.purchasePrice;
+      roiWeighted += l.purchasePrice * r;
+    });
+
+    const wroi = total > 0 ? roiWeighted/total : 0;
+    return { month:m, roi:wroi };
+  });
+
+  // SVG creation
+  const svg = document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height','100%');
+  svg.style.display = "block";
+
+  const vals = weightedSeries.map(p=>p.roi);
+  const maxV = Math.max(...vals);
+  const minV = Math.min(...vals);
+  const range = Math.max(1e-6, maxV-minV);
+  const stepX = (w - pad*2) / Math.max(1, weightedSeries.length - 1);
+
+  function toXY(val,i){
+    const x = pad + i*stepX;
+    const y = pad + (h - pad*2) - ((val - minV)/range)*(h - pad*2);
+    return [x,y];
+  }
+
+  // grid lines
+  for(let gy=0; gy<5; gy++){
+    const y = pad + gy*((h-pad*2)/4);
+    const line=document.createElementNS(svgNS,'line');
+    line.setAttribute('x1',pad);
+    line.setAttribute('x2',w-pad);
+    line.setAttribute('y1',y);
+    line.setAttribute('y2',y);
+    line.setAttribute('stroke','#eef2f7');
+    svg.appendChild(line);
+  }
+
+  // ROI curve path
+  let d='';
+  weightedSeries.forEach((p,i)=>{
+    const [x,y] = toXY(p.roi,i);
+    d += i===0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+  });
+
+  const pathEl=document.createElementNS(svgNS,'path');
+  pathEl.setAttribute('d',d);
+  pathEl.setAttribute('stroke','#0ea5e9');
+  pathEl.setAttribute('stroke-width','2');
+  pathEl.setAttribute('fill','none');
+  svg.appendChild(pathEl);
+
+  // current vertical indicator
+  const curIdx = Math.min(CURRENT_MONTH-1, weightedSeries.length-1);
+  const curX = pad + curIdx*stepX;
+
+  const curLine=document.createElementNS(svgNS,'line');
+  curLine.setAttribute('x1',curX);
+  curLine.setAttribute('x2',curX);
+  curLine.setAttribute('y1',pad);
+  curLine.setAttribute('y2',h-pad);
+  curLine.setAttribute('stroke','#111827');
+  curLine.setAttribute('stroke-dasharray','3 4');
+  curLine.setAttribute('stroke-opacity','0.6');
+  svg.appendChild(curLine);
+
+  drawerChartArea.appendChild(svg);
+
+  //--------------------------------------------------
+  // 2️⃣ PORTFOLIO TABLE (styled like Amort Page)
+  //--------------------------------------------------
+
+  const rows = loansWithAmort.map(l => {
+    const curIdx = Math.min(CURRENT_MONTH-1, l.roiSeries.length-1);
+    const roi = l.roiSeries[curIdx].roi * 100;
+
+    return `
+      <tr>
+        <td style="text-align:left">Loan ${l.id}</td>
+        <td>${l.purchaseDate}</td>
+        <td>$${l.purchasePrice.toLocaleString()}</td>
+        <td>${(l.nominalRate*100).toFixed(2)}%</td>
+        <td>${roi.toFixed(2)}%</td>
+      </tr>
+    `;
+  }).join('');
+
+  drawerExtra.innerHTML = `
+    <h3 style="margin-top:18px;margin-bottom:6px">Portfolio Loans</h3>
+    <div style="border:1px solid rgba(15,23,42,0.06);border-radius:8px;overflow:auto;padding:6px;background:#fff">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr>
+            <th style="text-align:left">Loan</th>
+            <th style="text-align:left">Purchase Date</th>
+            <th>Price</th>
+            <th>Rate</th>
+            <th>ROI to Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden','false');
+}
+
+    
     function renderRatesDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Rates Distribution'; drawerSub.textContent='Histogram of nominal rates';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
     function renderPaymentsDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Payments'; drawerSub.textContent='Expected monthly payments';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
 
