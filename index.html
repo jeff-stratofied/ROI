@@ -268,11 +268,8 @@
       var svg = tile.querySelector('svg.sparkline'); var w=170,h=48,pad=6;
       var pts = loan.miniPts && loan.miniPts.length?loan.miniPts:loan.roiSeries.map(function(s){return {x:s.month,y:s.roi};});
       var path = buildPathFromPoints(pts, w, h, pad);
-      svg.innerHTML = ''
-        + '<path d="' + path + '" fill="none" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />'
-        + '<g class="mini-hover"></g>'
-       // Compute dashed-line X based on each loan’s purchase date relative to earliest
-const earliestDate = "2024-01-01"; // earliest loan
+     // compute dashed line X first
+const earliestDate = "2024-01-01";
 const diff = monthDiff(earliestDate, loan.purchaseDate);
 
 let currentIdxForLoan = CURRENT_MONTH - diff;
@@ -281,8 +278,12 @@ currentIdxForLoan = Math.max(1, Math.min(loan.roiSeries.length, currentIdxForLoa
 const stepX = (w - pad*2) / Math.max(1, loan.roiSeries.length - 1);
 const dashX = pad + (currentIdxForLoan - 1) * stepX;
 
-+ '<line class="current-line" x1="' + dashX + '" y1="2" x2="' + dashX + '" y2="' + (h-2) 
-  + '" stroke="#111827" stroke-dasharray="3 3" stroke-opacity="0.6" />';
+// now build SVG innerHTML including the dashed line
+svg.innerHTML =
+    '<path d="' + path + '" fill="none" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />'
+  + '<g class="mini-hover"></g>'
+  + '<line class="current-line" x1="' + dashX + '" y1="2" x2="' + dashX + '" y2="' + (h-2)
+      + '" stroke="#111827" stroke-dasharray="3 3" stroke-opacity="0.6" />';
 
       svg.addEventListener('mousemove', function(ev){
         var rect = svg.getBoundingClientRect(); var relativeX = ev.clientX - rect.left; var frac = relativeX / rect.width; var idxNearest = Math.round(frac*(loan.roiSeries.length - 1)); var p = loan.roiSeries[Math.max(0, Math.min(loan.roiSeries.length-1, idxNearest))];
