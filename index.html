@@ -41,14 +41,15 @@
     .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px }
     .close-btn{ background:#f1f5f9; border:none; padding:8px; border-radius:8px; cursor:pointer }
     .drawer-chart {
-  height:220px;
-  background:linear-gradient(180deg,#ffffff,#fcfeff);
-  border-radius:8px;
-  border:1px solid rgba(15,23,42,0.03);
-  display:block;                 /* ⬅ CHANGED (removes centering) */
-  position:relative;
-  margin-bottom:8px;
-  padding:12px;                  /* keeps nice spacing */
+  width: 100%;                    /* ⬅ forces full drawer width */
+  height: 260px;                  /* (optional) more room for full-width chart */
+  background: linear-gradient(180deg,#ffffff,#fcfeff);
+  border-radius: 8px;
+  border: 1px solid rgba(15,23,42,0.03);
+  display: block;
+  position: relative;
+  margin-bottom: 8px;
+  padding: 0;                     /* ⬅ remove padding so SVG touches edges */
 }
 
 /* Drawer info layout improvements */
@@ -361,7 +362,7 @@ svg.innerHTML =
       svg.setAttribute('height','100%');
       svg.style.display = "block";   // prevents inline SVG from shrinking
 svg.style.width = "100%";      // ensures full drawer width
-svg.style.height = "240px";    // consistent fixed height
+svg.style.height = "100%";      // fills .drawer-chart height
       
       var schedule = loan.roiSeries; var vals = schedule.map(function(s){return s.roi;}); var maxV=Math.max.apply(null, vals), minV=Math.min.apply(null, vals), range=Math.max(1e-6,maxV-minV);
       var stepX = (w - pad*2) / Math.max(1, schedule.length - 1);
