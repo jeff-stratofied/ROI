@@ -389,8 +389,8 @@ svg.appendChild(hoverGroup);
 
   // Tooltip identical to mini-charts
   tooltip.style.display = 'block';
-  tooltip.style.left = ev.clientX + 'px';
-tooltip.style.top = (ev.clientY - 10) + 'px';
+  tooltip.style.left = (rect.left + px) + 'px';
+  tooltip.style.top = (rect.top - 10) + 'px';
   tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (val * 100).toFixed(2) + '%';
 });
       svg.addEventListener('mouseleave', function(){
