@@ -42,6 +42,12 @@
     .close-btn{ background:#f1f5f9; border:none; padding:8px; border-radius:8px; cursor:pointer }
     .drawer-chart{ height:220px; background:linear-gradient(180deg,#ffffff,#fcfeff); border-radius:8px; border:1px solid rgba(15,23,42,0.03); display:flex; align-items:center; justify-content:center; margin-bottom:8px; position:relative; padding:8px }
 
+/* Drawer info layout improvements */
+.drawer .drawer-info-row { display:flex; gap:10px; margin-bottom:8px; }
+.drawer .info-card { flex:1; background:#f8fafc; padding:10px; border-radius:8px; }
+.drawer .info-card.small { width:120px; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; }
+.drawer .info-card .muted-small { font-size:12px; color:var(--muted); margin-bottom:6px; }
+    
     .amort-wrap{ border:1px solid rgba(15,23,42,0.04); border-radius:8px; padding:8px; max-height:40vh; overflow:auto }
     table{ width:100%; border-collapse:collapse; font-size:13px }
     thead th{ position:sticky; top:0; background:var(--card); padding:8px; text-align:left; color:var(--muted); font-weight:700 }
@@ -50,6 +56,30 @@
 
     .tooltip{ position:fixed; pointer-events:none; background:#0f172a; color:white; padding:6px 8px; border-radius:6px; font-size:12px; transform:translate(-50%,-120%); box-shadow:0 6px 18px rgba(2,6,23,0.2); display:none; z-index:9999; line-height:1.12 }
     .small{ font-size:12px; color:var(--muted) }
+
+    /* ROI table styling (matches amort page look) */
+.roi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+}
+.roi-table thead th {
+  text-align: left;
+  padding: 8px;
+  background: #f8fafc;
+  font-weight: 700;
+  color: var(--muted);
+  border-bottom: 1px solid rgba(15,23,42,0.04);
+}
+.roi-table tbody td {
+  padding: 8px;
+  border-bottom: 1px dashed rgba(15,23,42,0.04);
+  text-align: right;
+}
+.roi-table tbody td:first-child { text-align:left; }
+.roi-table-container h3 { margin: 0 0 8px; font-size:15px; }
+  
   </style>
 </head>
 <body>
@@ -85,18 +115,44 @@
 
     <div id="drawerBody">
       <div class="drawer-chart" id="drawerChartArea"></div>
+<!-- ROI table (inserted below drawerChartArea) -->
+<div class="roi-table-container" style="margin-top: 18px;">
+  <h3 style="margin-bottom:8px">ROI Breakdown</h3>
+
+  <div style="overflow:auto; border-radius:8px; border:1px solid rgba(15,23,42,0.04); padding:6px; background:#fff">
+    <table class="roi-table" aria-label="ROI by month">
+      <thead>
+        <tr>
+          <th style="min-width:70px">Month</th>
+          <th style="min-width:90px">Payment</th>
+          <th style="min-width:90px">Principal</th>
+          <th style="min-width:90px">Interest</th>
+          <th style="min-width:110px">Accrued Int</th>
+          <th style="min-width:80px">Fees</th>
+          <th style="min-width:110px">Loan Value</th>
+          <th style="min-width:80px">ROI %</th>
+        </tr>
+      </thead>
+      <tbody id="roiTableBody">
+        <!-- JS will inject rows here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+      
       <div class="legend" id="drawerLegend" style="display:none"></div>
 
-      <div style="display:flex;gap:10px;margin-bottom:8px">
-        <div style="flex:1;background:#f8fafc;padding:10px;border-radius:8px">
-          <div style="font-size:12px;color:var(--muted)" id="drawerPrimaryTitle">Purchase Price</div>
-          <div id="drawerPrimary" style="font-weight:800;font-size:18px"></div>
-        </div>
-        <div style="width:120px;background:#f8fafc;padding:10px;border-radius:8px">
-          <div style="font-size:12px;color:var(--muted)" id="drawerSecondaryTitle">Rate</div>
-          <div id="drawerSecondary" style="font-weight:800;font-size:16px"></div>
-        </div>
-      </div>
+      <div class="drawer-info-row">
+  <div class="info-card">
+    <div class="muted-small" id="drawerPrimaryTitle">Purchase Price</div>
+    <div id="drawerPrimary" style="font-weight:800;font-size:18px"></div>
+  </div>
+  <div class="info-card small">
+    <div class="muted-small" id="drawerSecondaryTitle">Rate</div>
+    <div id="drawerSecondary" style="font-weight:800;font-size:16px"></div>
+  </div>
+</div>
 
       <div id="drawerExtra"></div>
 
@@ -246,7 +302,53 @@
       svg.addEventListener('mousemove', function(ev){ var rect=svg.getBoundingClientRect(); var x=ev.clientX-rect.left; var idx=Math.round((x-pad)/stepX); idx=Math.max(0,Math.min(schedule.length-1,idx)); var px = pad + idx*stepX; vLine.setAttribute('x1',px); vLine.setAttribute('x2',px); vLine.setAttribute('y1',pad); vLine.setAttribute('y2',h-pad); circles.innerHTML=''; var val=schedule[idx].roi; var xy=toXY(val,idx); var cx=xy[0], cy=xy[1]; var c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',4); c.setAttribute('fill','#0ea5e9'); c.setAttribute('stroke','#fff'); c.setAttribute('stroke-width','1.2'); circles.appendChild(c); tooltip.style.display='block'; tooltip.style.left=(rect.left+px)+'px'; tooltip.style.top=(rect.top+16)+'px'; tooltip.innerHTML = 'M' + schedule[idx].month + ' • ROI ' + (schedule[idx].roi*100).toFixed(2) + '%'; });
       svg.addEventListener('mouseleave', function(){ vLine.setAttribute('x1',0); vLine.setAttribute('x2',0); circles.innerHTML=''; tooltip.style.display='none'; });
       drawerChartArea.appendChild(svg);
+// ----------------------
+// Populate ROI table below the chart
+// feePerMonth is flat servicing fee charged every month (including grace)
+const feePerMonth = 3.00;
 
+// locate tbody and clear it
+const roiBody = document.getElementById('roiTableBody');
+if (roiBody) roiBody.innerHTML = '';
+
+// We'll use loan.amort.schedule (which has payment, principalPaid, interest, balance)
+// and loan.cumSchedule (which has cumPrincipal, cumInterest, cumTotal)
+const cum = loan.cumSchedule || [];
+const sched = loan.amort && loan.amort.schedule ? loan.amort.schedule : [];
+
+sched.forEach((r) => {
+  const month = r.monthIndex;
+  // find cumulative row for same month
+  const cs = cum.find(c => c.monthIndex === month) || { cumPrincipal:0, cumInterest:0, cumTotal:0 };
+
+  const payment = Number(r.payment) || 0;
+  const principalPaid = Number(r.principalPaid) || 0;
+  const interestPaid = Number(r.interest) || 0;
+  const accruedInterest = Number(cs.cumInterest) || 0;
+  const cumulativePayments = Number(cs.cumTotal) || 0;
+
+  // fees charged up to and including this month
+  const fees = +(month * feePerMonth).toFixed(2);
+
+  // Loan Value definition per your spec:
+  // LoanValue = balance + cumulativeAccruedInterest + cumulativePayments - cumulativeFees
+  const loanValue = +(Number(r.balance || 0) + accruedInterest + cumulativePayments - fees).toFixed(2);
+
+  const roiPct = +(((loanValue - loan.purchasePrice) / loan.purchasePrice) * 100).toFixed(2);
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = ''
+    + '<td>M' + month + '</td>'
+    + '<td>$' + payment.toFixed(2) + '</td>'
+    + '<td>$' + principalPaid.toFixed(2) + '</td>'
+    + '<td>$' + interestPaid.toFixed(2) + '</td>'
+    + '<td>$' + accruedInterest.toFixed(2) + '</td>'
+    + '<td>$' + fees.toFixed(2) + '</td>'
+    + '<td>$' + loanValue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>'
+    + '<td>' + roiPct.toFixed(2) + '%</td>'
+  ;
+  roiBody.appendChild(tr);
+});
       drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); drawer.scrollTop=0;
     }
 
