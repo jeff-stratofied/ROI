@@ -143,12 +143,42 @@
       </div>
     </div>
     
-
+<div class="drawer-info-row">
+  <div class="info-card">
+    <div class="muted-small" id="drawerPrimaryTitle">Purchase Price</div>
+    <div id="drawerPrimary" style="font-weight:800;font-size:18px"></div>
+  </div>
+  <div class="info-card small">
+    <div class="muted-small" id="drawerSecondaryTitle">Rate</div>
+    <div id="drawerSecondary" style="font-weight:800;font-size:16px"></div>
+  </div>
+</div>
     
     <div id="drawerBody">
       <div class="drawer-chart" id="drawerChartArea"></div>
+<!-- ROI table (inserted below drawerChartArea) -->
+<div class="roi-table-container" style="margin-top: 18px;">
+  <h3 style="margin-bottom:8px">ROI Breakdown</h3>
 
-
+  <div style="overflow:auto; border-radius:8px; border:1px solid rgba(15,23,42,0.04); padding:6px; background:#fff">
+    <table class="roi-table" aria-label="ROI by month">
+      <thead>
+        <tr>
+          <th style="min-width:70px">Month</th>
+          <th style="min-width:90px">Payment</th>
+          <th style="min-width:90px">Principal</th>
+          <th style="min-width:90px">Interest</th>
+          <th style="min-width:110px">Accrued Int</th>
+          <th style="min-width:80px">Fees</th>
+          <th style="min-width:110px">Loan Value</th>
+          <th style="min-width:80px">ROI %</th>
+        </tr>
+      </thead>
+      <tbody id="roiTableBody">
+        <!-- JS will inject rows here -->
+      </tbody>
+    </table>
+  </div>
 </div>
 
       
