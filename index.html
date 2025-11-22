@@ -413,7 +413,29 @@ input:checked + .slider:before {
       const maxValue=Math.max(...values,1); const barW=(w-padL-padR)/Math.max(1,keys.length);
       for(let i=0;i<=5;i++){ const y=padT+(h-padT-padB)*(i/5); const line=document.createElementNS(svgNS,'line'); line.setAttribute('x1',padL); line.setAttribute('x2',w-padR); line.setAttribute('y1',y); line.setAttribute('y2',y); line.setAttribute('stroke','#eef2f7'); svg.appendChild(line); const value=maxValue*(1-i/5); const lbl=document.createElementNS(svgNS,'text'); lbl.textContent='$'+Math.round(value).toLocaleString(); lbl.setAttribute('x',padL-10); lbl.setAttribute('y',y+4); lbl.setAttribute('font-size','11'); lbl.setAttribute('fill','#64748b'); lbl.setAttribute('text-anchor','end'); svg.appendChild(lbl); }
       const hoverG=document.createElementNS(svgNS,'g'); hoverG.setAttribute('class','hover'); svg.appendChild(hoverG);
-      keys.forEach((k,i)=>{ const amount=values[i]; const x=padL+i*barW; const barH=(amount/maxValue)*(h-padT-padB); const y=h-padB-barH; const bar=document.createElementNS(svgNS,'rect'); bar.setAttribute('x',x+6); bar.setAttribute('y',y); bar.setAttribute('width',barW-12); bar.setAttribute('height',barH); bar.setAttribute('rx',4); bar.setAttribute('fill',opts.color||'#0ea5e9'); bar.style.cursor='pointer'; bar.addEventListener('mousemove',ev=>{ hoverG.innerHTML=''; const rect=svg.getBoundingClientRect(); const cx=ev.clientX-rect.left; const cy=ev.clientY-rect.top-14; const bg=document.createElementNS(svgNS,'rect'); bg.setAttribute('x',cx-40); bg.setAttribute('y',cy-18); bg.setAttribute('width',80); bg.setAttribute('height',20); bg.setAttribute('rx',4); bg.setAttribute('fill','var(--card)'); bg.setAttribute('stroke','#cbd5e1'); const tip=document.createElementNS(svgNS,'text'); tip.textContent='$'+amount.toLocaleString(); tip.setAttribute('x',cx); tip.setAttribute('y',cy-4); tip.setAttribute('font-size','12'); tip.setAttribute('text-anchor','middle'); tip.setAttribute('fill','#0f172a'); hoverG.appendChild(bg); hoverG.appendChild(tip); }); bar.addEventListener('mouseleave',()=>{ hoverG.innerHTML=''; }); svg.appendChild(bar); const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x',x+barW/2); txt.setAttribute('y',h-padB+14); txt.setAttribute('font-size','11'); txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','#475569'); txt.textContent=k; svg.appendChild(txt); });
+      keys.forEach((k,i)=>{ const amount=values[i]; const x=padL+i*barW; const barH=(amount/maxValue)*(h-padT-padB); const y=h-padB-barH; const bar=document.createElementNS(svgNS,'rect'); bar.setAttribute('x',x+6); bar.setAttribute('y',y); bar.setAttribute('width',barW-12); bar.setAttribute('height',barH); bar.setAttribute('rx',4); bar.setAttribute('fill',opts.color||'#0ea5e9'); bar.style.cursor='pointer'; bar.addEventListener('mousemove',ev=>{ hoverG.innerHTML=''; const rect=svg.getBoundingClientRect(); const cx=ev.clientX-rect.left; const cy=ev.clientY-rect.top-14; // unified tooltip (works in light + dark modes)
+hoverG.innerHTML = '';
+
+const rectBg = document.createElementNS(svgNS, 'rect');
+rectBg.setAttribute('x', cx - 45);
+rectBg.setAttribute('y', cy - 30);
+rectBg.setAttribute('width', 90);
+rectBg.setAttribute('height', 26);
+rectBg.setAttribute('rx', 6);
+rectBg.setAttribute('fill', 'black');
+rectBg.setAttribute('opacity', '0.85');
+
+const txt = document.createElementNS(svgNS, 'text');
+txt.textContent = '$' + amount.toLocaleString();
+txt.setAttribute('x', cx);
+txt.setAttribute('y', cy - 13);
+txt.setAttribute('font-size', '12');
+txt.setAttribute('font-weight', '600');
+txt.setAttribute('fill', 'white');
+txt.setAttribute('text-anchor', 'middle');
+
+hoverG.appendChild(rectBg);
+hoverG.appendChild(txt); hoverG.appendChild(bg); hoverG.appendChild(tip); }); bar.addEventListener('mouseleave',()=>{ hoverG.innerHTML=''; }); svg.appendChild(bar); const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x',x+barW/2); txt.setAttribute('y',h-padB+14); txt.setAttribute('font-size','11'); txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','#475569'); txt.textContent=k; svg.appendChild(txt); });
       containerEl.appendChild(svg); return svg;
     }
 
