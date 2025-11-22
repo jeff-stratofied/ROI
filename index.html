@@ -552,26 +552,28 @@ themeSwitch.addEventListener('change',()=>{
 
 // icon toggle
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("themeToggle");
-  if (!btn) return;  // prevents null errors
+  const themeToggle = document.getElementById("themeToggle");
+  if (!themeToggle) {
+    console.warn("Dark mode toggle not found.");
+    return;
+  }
 
   const applyTheme = (theme) => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
-    btn.textContent = theme === "dark" ? "☀️" : "🌙";
+    themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
   };
 
   const saved = localStorage.getItem("theme") || "light";
   applyTheme(saved);
 
-  btn.addEventListener("click", () => {
-    const newTheme =
-      document.documentElement.getAttribute("data-theme") === "dark"
-        ? "light"
-        : "dark";
-    applyTheme(newTheme);
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
   });
 });
+
 
 
 </script>
