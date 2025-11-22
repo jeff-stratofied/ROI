@@ -562,19 +562,25 @@ sched.forEach((r) => {
     svg.appendChild(lbl);
   }
 
-  // hover group
-  const hoverG = document.createElementNS(svgNS,"g");
-  hoverG.setAttribute("class","bar-hover");
-  svg.appendChild(hoverG);
+  // horizontal grid lines (unchanged above here)
 
-  // bars
+  // ----------------------------------------
+  // CREATE BAR HOVER LAYER (but DO NOT append yet)
+  // ----------------------------------------
+  const hoverG = document.createElementNS(svgNS, "g");
+  hoverG.setAttribute("id", "barHoverLayer");
+  hoverG.style.pointerEvents = "none";   // so it never blocks bar mouse events
+
+  // ----------------------------------------
+  // DRAW BARS
+  // ----------------------------------------
   sortedKeys.forEach((key, i) => {
     const amount = totals[key];
     const x = padL + i * barW;
     const barHeight = (amount / maxValue) * (h - padT - padB);
     const y = padT + (h - padT - padB) - barHeight;
 
-    const bar = document.createElementNS(svgNS,"rect");
+    const bar = document.createElementNS(svgNS, "rect");
     bar.setAttribute("x", x + 6);
     bar.setAttribute("y", y);
     bar.setAttribute("width", barW - 12);
@@ -583,22 +589,37 @@ sched.forEach((r) => {
     bar.setAttribute("fill", "#0ea5e9");
     bar.style.cursor = "pointer";
 
+    // ----------------------------------------
+    // FIXED HOVER TOOLTIP — always on top layer
+    // ----------------------------------------
     bar.addEventListener("mousemove", ev => {
-      hoverG.innerHTML = "";
+      hoverG.innerHTML = "";  // clear old tooltip
 
       const rect = svg.getBoundingClientRect();
       const cx = ev.clientX - rect.left;
-      const cy = ev.clientY - rect.top - 18;
+      const cy = ev.clientY - rect.top - 14;   // bump up slightly
 
-      const tip = document.createElementNS(svgNS,"text");
+      // tooltip box background
+      const bg = document.createElementNS(svgNS, "rect");
+      bg.setAttribute("x", cx - 40);
+      bg.setAttribute("y", cy - 18);
+      bg.setAttribute("width", 80);
+      bg.setAttribute("height", 20);
+      bg.setAttribute("rx", 4);
+      bg.setAttribute("fill", "#ffffff");
+      bg.setAttribute("stroke", "#cbd5e1");
+
+      // tooltip text
+      const tip = document.createElementNS(svgNS, "text");
       tip.textContent = "$" + amount.toLocaleString();
       tip.setAttribute("x", cx);
-      tip.setAttribute("y", cy);
-      tip.setAttribute("font-size","12");
-      tip.setAttribute("text-anchor","middle");
-      tip.setAttribute("fill","#0f172a");
-      tip.setAttribute("font-weight","600");
+      tip.setAttribute("y", cy - 4);
+      tip.setAttribute("font-size", "12");
+      tip.setAttribute("text-anchor", "middle");
+      tip.setAttribute("fill", "#0f172a");
+      tip.setAttribute("font-weight", "600");
 
+      hoverG.appendChild(bg);
       hoverG.appendChild(tip);
     });
 
@@ -608,16 +629,27 @@ sched.forEach((r) => {
 
     svg.appendChild(bar);
 
-    // x-axis labels
-    const t = document.createElementNS(svgNS,"text");
+    // ----------------------------------------
+    // X-axis labels (unchanged)
+    // ----------------------------------------
+    const t = document.createElementNS(svgNS, "text");
     t.textContent = key;
-    t.setAttribute("x", x + barW/2);
+    t.setAttribute("x", x + barW / 2);
     t.setAttribute("y", h - padB + 22);
     t.setAttribute("font-size", "11");
     t.setAttribute("fill", "#64748b");
-    t.setAttribute("text-anchor","middle");
+    t.setAttribute("text-anchor", "middle");
     svg.appendChild(t);
   });
+
+  // ----------------------------------------
+  // ADD HOVER GROUP *AFTER* BARS
+  // ensures tooltips are above bars (Z-order fix)
+  // ----------------------------------------
+  svg.appendChild(hoverG);
+
+  drawerChartArea.appendChild(svg);
+
 
   drawerChartArea.appendChild(svg);
 
