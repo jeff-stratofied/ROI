@@ -534,20 +534,6 @@ input:checked + .slider:before {
        End
        ------------------------- */
   
-// Theme toggle logic
-const themeSwitch=document.getElementById('themeSwitch');
-function applyTheme(t){
-  document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('theme',t);
-}
-const savedTheme=localStorage.getItem('theme') || 'light';
-applyTheme(savedTheme);
-if(savedTheme==='dark') themeSwitch.checked=true;
-themeSwitch.addEventListener('change',()=>{
-  applyTheme(themeSwitch.checked?'dark':'light');
-});
-
-
 
 
 // icon toggle
