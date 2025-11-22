@@ -490,7 +490,7 @@ sched.forEach((r) => {
 
     function renderTPVDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Portfolio — Weighted ROI'; drawerSub.textContent='Snapshot'; drawerPrimary.textContent = ''; drawerSecondary.textContent = '';  drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Weighted ROI to date</strong><div style=\"font-size:18px;font-weight:800;margin-top:6px\">' + (kpis.weightedROI*100).toFixed(2) + '%</div></div>'; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
     
-    function renderDistributionDrawer() {function renderDistributionDrawer() {
+    function renderDistributionDrawer() {
   currentMode = 'kpi';
   currentLoan = null;
 
