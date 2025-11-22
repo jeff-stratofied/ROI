@@ -490,7 +490,7 @@ sched.forEach((r) => {
 
     function renderTPVDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Portfolio — Weighted ROI'; drawerSub.textContent='Snapshot'; drawerPrimary.textContent = ''; drawerSecondary.textContent = '';  drawerExtra.innerHTML = '<div style=\"margin-top:10px\"><strong class=\"small\">Weighted ROI to date</strong><div style=\"font-size:18px;font-weight:800;margin-top:6px\">' + (kpis.weightedROI*100).toFixed(2) + '%</div></div>'; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
     
-    function renderDistributionDrawer() {
+   function renderDistributionDrawer() {
   currentMode = 'kpi';
   currentLoan = null;
 
@@ -516,7 +516,7 @@ sched.forEach((r) => {
   const sortedKeys = Object.keys(counts).sort();
 
   // --------------------------
-  // Build bar chart (same style as Amort Page)
+  // Build bar chart (Amort Page style)
   // --------------------------
   const svgNS = "http://www.w3.org/2000/svg";
 
@@ -530,8 +530,8 @@ sched.forEach((r) => {
   const padB = 45;
 
   const barW = (w - padL - padR) / sortedKeys.length;
-
   const maxCount = Math.max(...Object.values(counts));
+
   const svg = document.createElementNS(svgNS, "svg");
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   svg.setAttribute("width", "100%");
@@ -541,6 +541,7 @@ sched.forEach((r) => {
   // grid lines
   for (let i = 0; i <= maxCount; i++) {
     const y = padT + (h - padT - padB) * (1 - i / maxCount);
+
     const line = document.createElementNS(svgNS, "line");
     line.setAttribute("x1", padL);
     line.setAttribute("x2", w - padR);
@@ -549,7 +550,7 @@ sched.forEach((r) => {
     line.setAttribute("stroke", "#eef2f7");
     svg.appendChild(line);
 
-    // y-axis labels
+    // labels
     const lbl = document.createElementNS(svgNS, "text");
     lbl.textContent = i;
     lbl.setAttribute("x", padL - 10);
@@ -567,19 +568,18 @@ sched.forEach((r) => {
     const barHeight = (count / maxCount) * (h - padT - padB);
     const y = padT + (h - padT - padB) - barHeight;
 
-    const rectEl = document.createElementNS(svgNS, "rect");
-    rectEl.setAttribute("x", x + 6);
-    rectEl.setAttribute("y", y);
-    rectEl.setAttribute("width", barW - 12);
-    rectEl.setAttribute("height", barHeight);
-    rectEl.setAttribute("rx", 4);
-    rectEl.setAttribute("fill", "#0ea5e9");
-    svg.appendChild(rectEl);
+    const r = document.createElementNS(svgNS, "rect");
+    r.setAttribute("x", x + 6);
+    r.setAttribute("y", y);
+    r.setAttribute("width", barW - 12);
+    r.setAttribute("height", barHeight);
+    r.setAttribute("rx", 4);
+    r.setAttribute("fill", "#0ea5e9");
+    svg.appendChild(r);
 
-    // x-axis labels
-    const t = document.createElementNS(svgNS,"text");
+    const t = document.createElementNS(svgNS, "text");
     t.textContent = key;
-    t.setAttribute("x", x + barW/2);
+    t.setAttribute("x", x + barW / 2);
     t.setAttribute("y", h - padB + 18);
     t.setAttribute("font-size", "11");
     t.setAttribute("fill", "#64748b");
@@ -590,7 +590,7 @@ sched.forEach((r) => {
   drawerChartArea.appendChild(svg);
 
   // --------------------------
-  // Add portfolio table (just like amort)
+  // Portfolio table below chart
   // --------------------------
   drawerExtra.innerHTML = `
     <h3 style="margin-top:18px;margin-bottom:8px">Portfolio Loans</h3>
@@ -622,8 +622,7 @@ sched.forEach((r) => {
                 <td>$${l.purchasePrice.toLocaleString()}</td>
                 <td>${(l.nominalRate*100).toFixed(2)}%</td>
                 <td>${pct}%</td>
-              </tr>
-            `;
+              </tr>`;
           }).join('')}
         </tbody>
       </table>
@@ -633,9 +632,6 @@ sched.forEach((r) => {
   drawer.classList.add('open');
   drawer.setAttribute('aria-hidden','false');
 }
-
-}
-
 
     
     function renderRatesDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Rates Distribution'; drawerSub.textContent='Histogram of nominal rates';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
