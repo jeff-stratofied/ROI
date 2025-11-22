@@ -28,10 +28,10 @@ html[data-theme="dark"] {
   --text:var(--text-dark);
 }
 html[data-theme="light"] {
-  --bg:var(--bg-light);
-  --card:var(--card-light);
-  --border:var(--border-light);
-  --text:var(--text-light);
+  --bg: #eef2f6;
+  --card: #ffffff;
+  --border: rgba(15,23,42,0.07);
+  --text: #0f172a;
 }
 body {
   background: var(--bg);
@@ -435,7 +435,7 @@ txt.setAttribute('fill', 'white');
 txt.setAttribute('text-anchor', 'middle');
 
 hoverG.appendChild(rectBg);
-hoverG.appendChild(txt); hoverG.appendChild(bg); hoverG.appendChild(tip); }); bar.addEventListener('mouseleave',()=>{ hoverG.innerHTML=''; }); svg.appendChild(bar); const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x',x+barW/2); txt.setAttribute('y',h-padB+14); txt.setAttribute('font-size','11'); txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','#475569'); txt.textContent=k; svg.appendChild(txt); });
+hoverG.appendChild(txt);  }); bar.addEventListener('mouseleave',()=>{ hoverG.innerHTML=''; }); svg.appendChild(bar); const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x',x+barW/2); txt.setAttribute('y',h-padB+14); txt.setAttribute('font-size','11'); txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','#475569'); txt.textContent=k; svg.appendChild(txt); });
       containerEl.appendChild(svg); return svg;
     }
 
