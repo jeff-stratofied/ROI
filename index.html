@@ -420,7 +420,7 @@ tooltip.style.top = (rect.top + pad - 26) + 'px';  // always top area
 // feePerMonth is flat servicing fee charged every month (including grace)
 const feePerMonth = 3.00;
 
-// locate tbody and clear it
+// locate tbody and clear it (may be absent if you removed ROI table)
 const roiBody = document.getElementById('roiTableBody');
 if (roiBody) roiBody.innerHTML = '';
 
@@ -429,39 +429,38 @@ if (roiBody) roiBody.innerHTML = '';
 const cum = loan.cumSchedule || [];
 const sched = loan.amort && loan.amort.schedule ? loan.amort.schedule : [];
 
-sched.forEach((r) => {
-  const month = r.monthIndex;
-  // find cumulative row for same month
-  const cs = cum.find(c => c.monthIndex === month) || { cumPrincipal:0, cumInterest:0, cumTotal:0 };
+// Only populate the table if the tbody exists
+if (roiBody) {
+  sched.forEach((r) => {
+    const month = r.monthIndex;
+    const cs = cum.find(c => c.monthIndex === month) || { cumPrincipal:0, cumInterest:0, cumTotal:0 };
 
-  const payment = Number(r.payment) || 0;
-  const principalPaid = Number(r.principalPaid) || 0;
-  const interestPaid = Number(r.interest) || 0;
-  const accruedInterest = Number(cs.cumInterest) || 0;
-  const cumulativePayments = Number(cs.cumTotal) || 0;
+    const payment = Number(r.payment) || 0;
+    const principalPaid = Number(r.principalPaid) || 0;
+    const interestPaid = Number(r.interest) || 0;
+    const accruedInterest = Number(cs.cumInterest) || 0;
+    const cumulativePayments = Number(cs.cumTotal) || 0;
 
-  // fees charged up to and including this month
-  const fees = +(month * feePerMonth).toFixed(2);
+    const fees = +(month * feePerMonth).toFixed(2);
 
-  // Loan Value definition per your spec:
-  // LoanValue = balance + cumulativeAccruedInterest + cumulativePayments - cumulativeFees
-  const loanValue = +(Number(r.balance || 0) + accruedInterest + cumulativePayments - fees).toFixed(2);
+    const loanValue = +(Number(r.balance || 0) + accruedInterest + cumulativePayments - fees).toFixed(2);
+    const roiPct = +(((loanValue - loan.purchasePrice) / loan.purchasePrice) * 100).toFixed(2);
 
-  const roiPct = +(((loanValue - loan.purchasePrice) / loan.purchasePrice) * 100).toFixed(2);
+    const tr = document.createElement('tr');
+    tr.innerHTML = ''
+      + '<td>M' + month + '</td>'
+      + '<td>$' + payment.toFixed(2) + '</td>'
+      + '<td>$' + principalPaid.toFixed(2) + '</td>'
+      + '<td>$' + interestPaid.toFixed(2) + '</td>'
+      + '<td>$' + accruedInterest.toFixed(2) + '</td>'
+      + '<td>$' + fees.toFixed(2) + '</td>'
+      + '<td>$' + loanValue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>'
+      + '<td>' + roiPct.toFixed(2) + '%</td>'
+    ;
+    roiBody.appendChild(tr);
+  });
+}
 
-  const tr = document.createElement('tr');
-  tr.innerHTML = ''
-    + '<td>M' + month + '</td>'
-    + '<td>$' + payment.toFixed(2) + '</td>'
-    + '<td>$' + principalPaid.toFixed(2) + '</td>'
-    + '<td>$' + interestPaid.toFixed(2) + '</td>'
-    + '<td>$' + accruedInterest.toFixed(2) + '</td>'
-    + '<td>$' + fees.toFixed(2) + '</td>'
-    + '<td>$' + loanValue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + '</td>'
-    + '<td>' + roiPct.toFixed(2) + '%</td>'
-  ;
-  roiBody.appendChild(tr);
-});
       drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); drawer.scrollTop=0;
     }
 
