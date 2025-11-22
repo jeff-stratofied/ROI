@@ -495,7 +495,7 @@ sched.forEach((r) => {
   currentLoan = null;
 
   drawerTitle.textContent = 'Total Loans';
-  drawerSub.textContent = 'Distribution — Loans by Purchase Month';
+  drawerSub.textContent = 'Loan Purchase Amounts Per Month';
   drawerPrimary.textContent = '';
   drawerSecondary.textContent = '';
 
@@ -503,34 +503,35 @@ sched.forEach((r) => {
   drawerLegend.style.display = 'none';
   drawerExtra.innerHTML = '';
 
-  // --------------------------
-  // Build purchase-month buckets
-  // --------------------------
-  const counts = {};
+  // ----------------------------------------
+  // Build purchase-month TOTAL $ amounts
+  // ----------------------------------------
+  const totals = {};
   loansWithAmort.forEach(l => {
     const d = new Date(l.purchaseDate);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}`;
-    counts[key] = (counts[key] || 0) + 1;
+    totals[key] = (totals[key] || 0) + l.purchasePrice;
   });
 
-  const sortedKeys = Object.keys(counts).sort();
+  const sortedKeys = Object.keys(totals).sort();
+  const values = sortedKeys.map(k => totals[k]);
+  const maxValue = Math.max(...values);
 
-  // --------------------------
-  // Build bar chart (Amort Page style)
-  // --------------------------
+  // ----------------------------------------
+  // Bar chart (Amort Page style)
+  // ----------------------------------------
   const svgNS = "http://www.w3.org/2000/svg";
 
   const rect = drawerChartArea.getBoundingClientRect();
   const w = rect.width;
   const h = 260;
 
-  const padL = 50;
+  const padL = 55;
   const padR = 20;
-  const padT = 20;
-  const padB = 45;
+  const padT = 25;
+  const padB = 55;
 
   const barW = (w - padL - padR) / sortedKeys.length;
-  const maxCount = Math.max(...Object.values(counts));
 
   const svg = document.createElementNS(svgNS, "svg");
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
@@ -538,9 +539,9 @@ sched.forEach((r) => {
   svg.setAttribute("height", "100%");
   svg.style.display = "block";
 
-  // grid lines
-  for (let i = 0; i <= maxCount; i++) {
-    const y = padT + (h - padT - padB) * (1 - i / maxCount);
+  // horizontal grid lines
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + (h - padT - padB) * (i / 5);
 
     const line = document.createElementNS(svgNS, "line");
     line.setAttribute("x1", padL);
@@ -550,9 +551,9 @@ sched.forEach((r) => {
     line.setAttribute("stroke", "#eef2f7");
     svg.appendChild(line);
 
-    // labels
+    const value = maxValue * (1 - i / 5);
     const lbl = document.createElementNS(svgNS, "text");
-    lbl.textContent = i;
+    lbl.textContent = "$" + value.toLocaleString();
     lbl.setAttribute("x", padL - 10);
     lbl.setAttribute("y", y + 4);
     lbl.setAttribute("font-size", "11");
@@ -561,77 +562,142 @@ sched.forEach((r) => {
     svg.appendChild(lbl);
   }
 
+  // hover group
+  const hoverG = document.createElementNS(svgNS,"g");
+  hoverG.setAttribute("class","bar-hover");
+  svg.appendChild(hoverG);
+
   // bars
   sortedKeys.forEach((key, i) => {
-    const count = counts[key];
+    const amount = totals[key];
     const x = padL + i * barW;
-    const barHeight = (count / maxCount) * (h - padT - padB);
+    const barHeight = (amount / maxValue) * (h - padT - padB);
     const y = padT + (h - padT - padB) - barHeight;
 
-    const r = document.createElementNS(svgNS, "rect");
-    r.setAttribute("x", x + 6);
-    r.setAttribute("y", y);
-    r.setAttribute("width", barW - 12);
-    r.setAttribute("height", barHeight);
-    r.setAttribute("rx", 4);
-    r.setAttribute("fill", "#0ea5e9");
-    svg.appendChild(r);
+    const bar = document.createElementNS(svgNS,"rect");
+    bar.setAttribute("x", x + 6);
+    bar.setAttribute("y", y);
+    bar.setAttribute("width", barW - 12);
+    bar.setAttribute("height", barHeight);
+    bar.setAttribute("rx", 4);
+    bar.setAttribute("fill", "#0ea5e9");
+    bar.style.cursor = "pointer";
 
-    const t = document.createElementNS(svgNS, "text");
+    bar.addEventListener("mousemove", ev => {
+      hoverG.innerHTML = "";
+
+      const rect = svg.getBoundingClientRect();
+      const cx = ev.clientX - rect.left;
+      const cy = ev.clientY - rect.top - 18;
+
+      const tip = document.createElementNS(svgNS,"text");
+      tip.textContent = "$" + amount.toLocaleString();
+      tip.setAttribute("x", cx);
+      tip.setAttribute("y", cy);
+      tip.setAttribute("font-size","12");
+      tip.setAttribute("text-anchor","middle");
+      tip.setAttribute("fill","#0f172a");
+      tip.setAttribute("font-weight","600");
+
+      hoverG.appendChild(tip);
+    });
+
+    bar.addEventListener("mouseleave", () => {
+      hoverG.innerHTML = "";
+    });
+
+    svg.appendChild(bar);
+
+    // x-axis labels
+    const t = document.createElementNS(svgNS,"text");
     t.textContent = key;
-    t.setAttribute("x", x + barW / 2);
-    t.setAttribute("y", h - padB + 18);
+    t.setAttribute("x", x + barW/2);
+    t.setAttribute("y", h - padB + 22);
     t.setAttribute("font-size", "11");
     t.setAttribute("fill", "#64748b");
-    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("text-anchor","middle");
     svg.appendChild(t);
   });
 
   drawerChartArea.appendChild(svg);
 
-  // --------------------------
-  // Portfolio table below chart
-  // --------------------------
+  // ----------------------------------------
+  // Total Invested Summary
+  // ----------------------------------------
+  const totalInvested = values.reduce((a,b)=>a+b,0);
+
   drawerExtra.innerHTML = `
-    <h3 style="margin-top:18px;margin-bottom:8px">Portfolio Loans</h3>
+    <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+      <div style="
+        background:#f8fafc;
+        padding:14px 18px;
+        border:1px solid rgba(15,23,42,0.05);
+        border-radius:10px;
+        font-size:15px;
+        font-weight:700;
+      ">
+        Total Invested: $${totalInvested.toLocaleString()}
+      </div>
+    </div>
+
+    <h3 style="margin-top:20px;margin-bottom:8px">Loans</h3>
+
     <div style="
       border:1px solid rgba(15,23,42,0.06);
       border-radius:8px;
+      max-height:260px;
       overflow:auto;
-      padding:6px;
       background:#fff;
+      padding:6px;
     ">
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <thead>
           <tr>
             <th style="text-align:left">Loan</th>
-            <th style="text-align:left">Purchase Date</th>
-            <th>Price</th>
+            <th style="text-align:left">Purchase</th>
+            <th>Amount</th>
             <th>Rate</th>
-            <th>ROI to Date</th>
           </tr>
         </thead>
         <tbody>
-          ${loansWithAmort.map(l => {
-            const idx = Math.min(CURRENT_MONTH-1, l.roiSeries.length-1);
-            const pct = (l.roiSeries[idx].roi * 100).toFixed(2);
-            return `
-              <tr>
-                <td style="text-align:left">Loan ${l.id}</td>
-                <td>${l.purchaseDate}</td>
-                <td>$${l.purchasePrice.toLocaleString()}</td>
-                <td>${(l.nominalRate*100).toFixed(2)}%</td>
-                <td>${pct}%</td>
-              </tr>`;
-          }).join('')}
+          ${loansWithAmort.map(l => `
+            <tr>
+              <td style="text-align:left">Loan ${l.id}</td>
+              <td>${l.purchaseDate}</td>
+              <td>$${l.purchasePrice.toLocaleString()}</td>
+              <td>${(l.nominalRate*100).toFixed(2)}%</td>
+            </tr>
+          `).join('')}
         </tbody>
       </table>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:10px;">
+      <button class="btn" onclick="window.print()">Print</button>
+      <button class="btn" onclick="copyPortfolioCSV()">Copy CSV</button>
     </div>
   `;
 
   drawer.classList.add('open');
   drawer.setAttribute('aria-hidden','false');
 }
+
+// CSV export for Total Loans drawer
+function copyPortfolioCSV() {
+  let rows = [["Loan","Purchase Date","Amount","Rate"]];
+  loansWithAmort.forEach(l=>{
+    rows.push([
+      "Loan " + l.id,
+      l.purchaseDate,
+      l.purchasePrice,
+      (l.nominalRate*100).toFixed(2)+"%"
+    ]);
+  });
+  const csv = rows.map(r=>r.join(",")).join("\n");
+  navigator.clipboard.writeText(csv);
+  alert("CSV copied to clipboard");
+}
+
 
     
     function renderRatesDrawer(){ currentMode='kpi'; currentLoan=null; drawerTitle.textContent='Rates Distribution'; drawerSub.textContent='Histogram of nominal rates';  drawerExtra.innerHTML=''; drawerChartArea.innerHTML=''; drawerLegend.style.display='none'; drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
