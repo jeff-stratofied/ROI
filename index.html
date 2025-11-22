@@ -642,12 +642,7 @@ function createBarChart(containerEl, keys, values, opts = {}) {
         const cumPayments = (cs.cumTotal !== undefined) ? cs.cumTotal : '';
         // cumulative fees
         let cumFees = 0;
-        if(loan.id === 1){
-          // loan1FeeSeries[0] corresponds to month 1
-          for(let i=0;i<month && i<loan1FeeSeries.length;i++){ cumFees += Number(loan1FeeSeries[i]||0); }
-        } else {
-          cumFees = 3 * month;
-        }
+cumFees = 3 * month;
         const loanValueAdj = (s.loanValue || 0) - cumFees;
         const roiAdj = ((loanValueAdj - loan.purchasePrice) / loan.purchasePrice) || 0;
         const tr = document.createElement('tr');
