@@ -683,7 +683,16 @@ cumFees = 3 * month;
       drawerTitle.textContent='Total Loans'; drawerSub.textContent='Loan Purchase Amounts Per Month';
       const totalsObj=getMonthlyTotals(loansWithAmort); const keys=Object.keys(totalsObj).sort(); const values=keys.map(k=>totalsObj[k]); const totalInv=values.reduce((a,b)=>a+b,0);
       drawerPrimaryTitle.textContent='Total Invested'; drawerPrimary.textContent='$'+totalInv.toLocaleString();
-      drawerSecondaryTitle.textContent='Total Loans'; drawerSecondary.textContent=loansWithAmort.length+' loans';
+      drawerSecondaryTitle.textContent = 'Current Portfolio Value';
+
+const portfolioValue = loansWithAmort.reduce((sum, l) => {
+  const idx = Math.min(CURRENT_MONTH - 1, l.roiSeries.length - 1);
+  const row = l.roiSeries[idx] || { loanValue: l.purchasePrice };
+  return sum + (row.loanValue || l.purchasePrice);
+}, 0);
+
+drawerSecondary.textContent = '$' + portfolioValue.toLocaleString();
+
       createBarChart(drawerChartArea, keys, values, { color:'#0ea5e9' });
       drawerExtra.innerHTML = `<h3 style="margin-top:12px;margin-bottom:8px">Loans</h3><div style="border:1px solid rgba(15,23,42,0.06);border-radius:8px;max-height:260px;overflow:auto;background:var(--card);padding:6px;"><table style="width:100%;font-size:13px"><thead><tr><th style="text-align:left">Loan</th><th style="text-align:left">Purchase</th><th>Amount</th><th>Rate</th></tr></thead><tbody>${loansWithAmort.map(l=>`<tr><td style="text-align:left">Loan ${l.id}</td><td>${l.purchaseDate}</td><td>$${l.purchasePrice.toLocaleString()}</td><td>${(l.nominalRate*100).toFixed(2)}%</td></tr>`).join('')}</tbody></table></div>`;
       drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
