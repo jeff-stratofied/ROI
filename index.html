@@ -720,6 +720,32 @@ drawerSecondary.textContent = '$' + portfolioValue.toLocaleString();
       drawerSecondaryTitle.textContent='Portfolio Value'; drawerSecondary.textContent='$'+portfolioValue.toLocaleString();
       createLineChart(drawerChartArea, series, { color:'#0f172a', labelFn:(pt)=>`M${pt.x} • Weighted ROI ${(pt.y*100).toFixed(2)}%` });
       drawerExtra.innerHTML=`<div style="margin-top:10px"><strong class="small">Weighted ROI to date</strong><div style="font-size:18px;font-weight:800;margin-top:6px">${(kpis.weightedROI*100).toFixed(2)}%</div></div>`;
+      <h3 style="margin-top:14px;margin-bottom:6px">Loan ROI to Date</h3>
+<div style="border:1px solid rgba(15,23,42,0.06);border-radius:8px;max-height:260px;overflow:auto;background:var(--card);padding:6px;">
+  <table style="width:100%;font-size:13px">
+    <thead>
+      <tr>
+        <th style="text-align:left">Loan</th>
+        <th style="text-align:right">ROI to Date</th>
+        <th style="text-align:right">Loan Value</th>
+      </tr>
+    </thead>
+    <tbody>
+     const rows = loansWithAmort.map(l => {
+  const idx = Math.min(CURRENT_MONTH - 1, l.roiSeries.length - 1);
+  const entry = l.roiSeries[idx] || { roi:0, loanValue:l.purchasePrice };
+  return `
+    <tr>
+      <td style="text-align:left">Loan ${l.id}</td>
+      <td style="text-align:right">${(entry.roi * 100).toFixed(2)}%</td>
+      <td style="text-align:right">$${entry.loanValue.toLocaleString()}</td>
+    </tr>`;
+}).join('');
+
+    </tbody>
+  </table>
+</div>
+
       drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
     }
 
