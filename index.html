@@ -720,6 +720,20 @@ drawerSecondary.textContent = '$' + portfolioValue.toLocaleString();
       drawerSecondaryTitle.textContent='Portfolio Value'; drawerSecondary.textContent='$'+portfolioValue.toLocaleString();
       createLineChart(drawerChartArea, series, { color:'#0f172a', labelFn:(pt)=>`M${pt.x} • Weighted ROI ${(pt.y*100).toFixed(2)}%` });
       drawerExtra.innerHTML=`<div style="margin-top:10px"><strong class="small">Weighted ROI to date</strong><div style="font-size:18px;font-weight:800;margin-top:6px">${(kpis.weightedROI*100).toFixed(2)}%</div></div>`;
+      drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
+    }
+
+    function renderRatesDrawer(){
+      currentMode='kpi'; currentLoan=null;
+      drawerAmortContainer.innerHTML = '';
+      drawerTitle.textContent='Projected Weighted ROI'; drawerSub.textContent='Projection to maturity';
+      const projectedPortfolioValue = loansWithAmort.reduce((s,l)=>{ const last=l.roiSeries[l.roiSeries.length-1]||{loanValue:l.purchasePrice}; return s + (last.loanValue||l.purchasePrice); },0);
+      drawerPrimaryTitle.textContent='Projected Weighted ROI'; drawerPrimary.textContent=(kpis.projectedWeightedROI*100).toFixed(2)+'%';
+      drawerSecondaryTitle.textContent='Projected Portfolio Value'; drawerSecondary.textContent='$'+projectedPortfolioValue.toLocaleString();
+      const monthsMax = Math.max(...loansWithAmort.map(l=>l.roiSeries.length)); const series=[]; for(let m=1;m<=monthsMax;m++){ let total=0, weighted=0; loansWithAmort.forEach(l=>{ const e=l.roiSeries.find(r=>r.month===m); if(e){ weighted += l.purchasePrice*e.roi; total += l.purchasePrice; } }); series.push({x:m,y: total?weighted/total:0}); }
+      createLineChart(drawerChartArea, series, { color:'#7c3aed', labelFn:(pt)=>`M${pt.x} • Projected ROI ${(pt.y*100).toFixed(2)}%` });
+      drawerExtra.innerHTML=`<div style="margin-top:10px"><strong class="small">Projected Weighted ROI (to maturity)</strong></div>`;
+      drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
       <h3 style="margin-top:14px;margin-bottom:6px">Loan ROI to Date</h3>
 <div style="border:1px solid rgba(15,23,42,0.06);border-radius:8px;max-height:260px;overflow:auto;background:var(--card);padding:6px;">
   <table style="width:100%;font-size:13px">
@@ -745,21 +759,6 @@ drawerSecondary.textContent = '$' + portfolioValue.toLocaleString();
     </tbody>
   </table>
 </div>
-
-      drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
-    }
-
-    function renderRatesDrawer(){
-      currentMode='kpi'; currentLoan=null;
-      drawerAmortContainer.innerHTML = '';
-      drawerTitle.textContent='Projected Weighted ROI'; drawerSub.textContent='Projection to maturity';
-      const projectedPortfolioValue = loansWithAmort.reduce((s,l)=>{ const last=l.roiSeries[l.roiSeries.length-1]||{loanValue:l.purchasePrice}; return s + (last.loanValue||l.purchasePrice); },0);
-      drawerPrimaryTitle.textContent='Projected Weighted ROI'; drawerPrimary.textContent=(kpis.projectedWeightedROI*100).toFixed(2)+'%';
-      drawerSecondaryTitle.textContent='Projected Portfolio Value'; drawerSecondary.textContent='$'+projectedPortfolioValue.toLocaleString();
-      const monthsMax = Math.max(...loansWithAmort.map(l=>l.roiSeries.length)); const series=[]; for(let m=1;m<=monthsMax;m++){ let total=0, weighted=0; loansWithAmort.forEach(l=>{ const e=l.roiSeries.find(r=>r.month===m); if(e){ weighted += l.purchasePrice*e.roi; total += l.purchasePrice; } }); series.push({x:m,y: total?weighted/total:0}); }
-      createLineChart(drawerChartArea, series, { color:'#7c3aed', labelFn:(pt)=>`M${pt.x} • Projected ROI ${(pt.y*100).toFixed(2)}%` });
-      drawerExtra.innerHTML=`<div style="margin-top:10px"><strong class="small">Projected Weighted ROI (to maturity)</strong></div>`;
-      drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
     }
 
     function renderPaymentsDrawer(){
