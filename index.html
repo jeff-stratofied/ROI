@@ -497,6 +497,23 @@ function createMultiSeriesChart(containerEl, loanSeriesList, weightedSeries, opt
     wPath.dataset.name = 'Weighted ROI';
   }
 
+  // current date vertical line (opt-in for matching loan drawer style)
+  if(opts.currentMonthLine && weightedSeries && weightedSeries.length){
+    const monthIndex = opts.currentMonthLine - 1;
+    if(monthIndex >= 0 && monthIndex < weightedSeries.length){
+      const [cx] = toXY(weightedSeries[monthIndex], monthIndex);
+      const curLine = document.createElementNS(svgNS,'line');
+      curLine.setAttribute('x1', cx);
+      curLine.setAttribute('x2', cx);
+      curLine.setAttribute('y1', pad);
+      curLine.setAttribute('y2', h - pad);
+      curLine.setAttribute('stroke', '#111827');
+      curLine.setAttribute('stroke-dasharray', '3 3');
+      curLine.setAttribute('stroke-opacity', '0.6');
+      svg.appendChild(curLine);
+    }
+  }
+
   // vertical marker + hover circle
   const vLine = document.createElementNS(svgNS,'line');
   vLine.setAttribute('stroke','var(--text)');
@@ -942,10 +959,10 @@ drawerSecondary.textContent = '$' + portfolioValue.toLocaleString();
 
   // Render chart
   createMultiSeriesChart(
-    drawerChartArea, 
-    loanSeriesList, 
-    projectedSeries, 
-    {weightedColor:'#000', weightedWidth:2.8}
+    drawerChartArea,
+    loanSeriesList,
+    projectedSeries,
+    {weightedColor:'#000', weightedWidth:2.8, currentMonthLine: CURRENT_MONTH}
   );
 
   // Build table
