@@ -75,7 +75,26 @@
       --tooltip-bg: var(--tooltip-bg-dark);
       --tooltip-text: var(--tooltip-text-dark);
     }
+/* Smooth theme transitions (copied from amortization page) */
+html, body,
+.app,
+header,
+.kpi, .tile,
+.drawer, .drawer-head, .drawer-body, .drawer-footer,
+.info-card, .drawer-chart,
+table, thead th, td,
+.tooltip,
+.theme-icon,
+svg text {
+  transition:
+    background-color .25s ease,
+    color .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease,
+    fill .25s ease;
+}
 
+    
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--text);background-color:var(--bg)}
     body{background:linear-gradient(180deg,var(--surface) 0%, var(--card) 100%); -webkit-font-smoothing:antialiased}
     .app{max-width:1200px;margin:20px auto;padding:16px}
