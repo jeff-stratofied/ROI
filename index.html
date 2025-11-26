@@ -133,12 +133,17 @@ body.dark {
     .drawer{
       position:fixed; right:0; top:0; height:100vh; max-width:1000px; width:760px; background:var(--card);
       box-shadow:-28px 0 80px rgba(2,6,23,0.14); transform:translateX(110%); transition: transform .32s cubic-bezier(.2,.9,.3,1), opacity .24s ease;
-      z-index:120; overflow:auto; padding:20px; opacity:0;
+      z-index:120; opacity:0; display:flex; flex-direction:column; overflow:hidden;
+      padding:0;
     }
     .drawer.open{ transform:translateX(0); opacity:1; animation: drawerIn .28s cubic-bezier(.2,.9,.3,1); }
     @keyframes drawerIn { from { transform: translateX(30%); opacity:0 } to { transform: translateX(0); opacity:1 } }
 
-    .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px }
+    .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px; padding:20px; flex-shrink:0; }
+    .drawer-body{ flex:1 1 auto; overflow-y:auto; overflow-x:hidden; padding:0 20px 20px; }
+    .drawer-footer{ padding:12px 20px 20px; flex-shrink:0; }
+    .drawer-footer .actions{ justify-content:flex-end; }
+    .drawer, #drawerBody, .drawer-body { overflow-x: hidden; }
     .drawer-chart { width:100%; height:260px; background: linear-gradient(180deg,var(--card),#fcfeff); border-radius:8px; border:1px solid rgba(15,23,42,0.03); margin-bottom:8px; padding:0; position:relative; display:block }
 
     /* Drawer info row */
@@ -297,18 +302,18 @@ input:checked + .slider:before {
       </div>
     </div>
 
-    <div class="drawer-info-row">
-      <div class="info-card" id="drawerPrimaryCard">
-        <div class="muted-small" id="drawerPrimaryTitle">Primary</div>
-        <div id="drawerPrimary" class="main-val"></div>
+    <div class="drawer-body" id="drawerBody">
+      <div class="drawer-info-row">
+        <div class="info-card" id="drawerPrimaryCard">
+          <div class="muted-small" id="drawerPrimaryTitle">Primary</div>
+          <div id="drawerPrimary" class="main-val"></div>
+        </div>
+        <div class="info-card small" id="drawerSecondaryCard">
+          <div class="muted-small" id="drawerSecondaryTitle">Secondary</div>
+          <div id="drawerSecondary" class="main-val small"></div>
+        </div>
       </div>
-      <div class="info-card small" id="drawerSecondaryCard">
-        <div class="muted-small" id="drawerSecondaryTitle">Secondary</div>
-        <div id="drawerSecondary" class="main-val small"></div>
-      </div>
-    </div>
 
-    <div id="drawerBody">
       <div class="drawer-chart" id="drawerChartArea"></div>
       <div class="legend" id="drawerLegend" style="display:none"></div>
       <div id="drawerExtra">
@@ -316,8 +321,10 @@ input:checked + .slider:before {
 </div>
 
       <div style="margin-top:12px" id="drawerAmortContainer"></div>
+    </div>
 
-      <div class="actions" style="padding-top:10px">
+    <div class="drawer-footer">
+      <div class="actions">
         <button class="btn" id="printBtn">Print</button>
         <button class="btn primary" id="copyCsvBtn">Copy CSV</button>
       </div>
