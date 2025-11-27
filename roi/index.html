@@ -29,6 +29,16 @@
       --accent-dark: #c4b5fd;
       --shadow-light: 0 12px 30px rgba(15,23,42,0.06);
       --shadow-dark: 0 12px 30px rgba(2,6,23,0.6);
+      --chart-bg-light: linear-gradient(180deg, #ffffff, #fcfeff);
+      --chart-bg-dark: linear-gradient(180deg, rgba(56,189,248,0.12), rgba(124,58,237,0.16));
+      --table-header-light: #ffffff;
+      --table-header-dark: #0f172a;
+      --table-border-light: rgba(15,23,42,0.07);
+      --table-border-dark: rgba(148,163,184,0.5);
+      --tooltip-bg-light: var(--text-light);
+      --tooltip-bg-dark: #0b1220;
+      --tooltip-text-light: #ffffff;
+      --tooltip-text-dark: var(--text-dark);
       --kpi-hover: translateY(-6px);
     }
 
@@ -42,6 +52,11 @@
       --brand: var(--brand-light);
       --accent: var(--accent-light);
       --shadow: var(--shadow-light);
+      --chart-bg: var(--chart-bg-light);
+      --table-header: var(--table-header-light);
+      --table-border: var(--table-border-light);
+      --tooltip-bg: var(--tooltip-bg-light);
+      --tooltip-text: var(--tooltip-text-light);
     }
 
     html[data-theme="dark"] {
@@ -54,7 +69,31 @@
       --brand: var(--brand-dark);
       --accent: var(--accent-dark);
       --shadow: var(--shadow-dark);
+      --chart-bg: var(--chart-bg-dark);
+      --table-header: var(--table-header-dark);
+      --table-border: var(--table-border-dark);
+      --tooltip-bg: var(--tooltip-bg-dark);
+      --tooltip-text: var(--tooltip-text-dark);
     }
+/* Smooth theme transitions (copied from amortization page) */
+html, body,
+.app,
+header,
+.kpi, .tile,
+.drawer, .drawer-head, .drawer-body, .drawer-footer,
+.info-card, .drawer-chart,
+table, thead th, td,
+.tooltip,
+.theme-icon,
+svg text {
+  transition:
+    background-color .25s ease,
+    color .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease,
+    fill .25s ease;
+}
+
 
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--text);background-color:var(--bg)}
     body{background:linear-gradient(180deg,var(--surface) 0%, var(--card) 100%); -webkit-font-smoothing:antialiased}
@@ -104,17 +143,22 @@
       position:fixed; right:0; top:0; height:100vh; max-width:1000px; width:760px; background:var(--card);
       box-shadow:-28px 0 80px rgba(2,6,23,0.14); transform:translateX(110%); transition: transform .32s cubic-bezier(.2,.9,.3,1), opacity .24s ease;
       z-index:120; opacity:0; display:flex; flex-direction:column; overflow:hidden;
-      padding:0;
+      padding:0; border-left:1px solid var(--border);
     }
     .drawer.open{ transform:translateX(0); opacity:1; animation: drawerIn .28s cubic-bezier(.2,.9,.3,1); }
     @keyframes drawerIn { from { transform: translateX(30%); opacity:0 } to { transform: translateX(0); opacity:1 } }
 
-    .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px; padding:20px; flex-shrink:0; }
+    .drawer-head{ display:flex; align-items:start; justify-content:space-between; gap:8px; padding:20px; flex-shrink:0; border-bottom:1px solid var(--border); background:var(--surface); }
     .drawer-body{ flex:1 1 auto; overflow-y:auto; overflow-x:hidden; padding:0 20px 20px; }
-    .drawer-footer{ padding:12px 20px 20px; flex-shrink:0; padding-left: 20px; }
+    .drawer-footer{ padding:12px 20px 20px; flex-shrink:0; padding-left: 20px; border-top:1px solid var(--border); background:var(--surface); }
     .drawer-footer .actions{ justify-content:flex-start; }
     .drawer, #drawerBody, .drawer-body { overflow-x: hidden; }
-    .drawer-chart { width:100%; height:260px; background: linear-gradient(180deg,var(--card),#fcfeff); border-radius:8px; border:1px solid var(--border); margin-bottom:8px; padding:0; position:relative; display:block }
+    .drawer-chart { width:100%; height:260px; background: var(--chart-bg); border-radius:8px; border:1px solid var(--border); margin-bottom:8px; padding:0; position:relative; display:block }
+
+    html[data-theme="dark"] .drawer-chart {
+      border-color: rgba(148,163,184,0.25);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
 
     /* Drawer info row */
     .drawer-info-row { display:flex; gap:12px; margin-bottom:8px; align-items:center }
@@ -123,13 +167,13 @@
     .muted-small{ font-size:12px; color:var(--muted); margin-bottom:6px }
     .main-val{ font-weight:800; font-size:18px }
 
-    .amort-wrap{ border:1px solid var(--border); border-radius:8px; padding:8px; max-height:40vh; overflow:auto }
-    table{ width:100%; border-collapse:collapse; font-size:13px }
-    thead th{ position:sticky; top:0; background:var(--card); padding:8px; text-align:left; color:var(--muted); font-weight:700}
-    td{ padding:8px; border-bottom:1px dashed var(--border); text-align:right }
+    .amort-wrap{ border:1px solid var(--border); border-radius:8px; padding:8px; max-height:40vh; overflow:auto; background:var(--card) }
+    table{ width:100%; border-collapse:collapse; font-size:13px; background:var(--card); }
+    thead th{ position:sticky; top:0; background:var(--table-header); padding:8px; text-align:left; color:var(--muted); font-weight:700; border-bottom:1px solid var(--table-border) }
+    td{ padding:8px; border-bottom:1px dashed var(--table-border); text-align:right }
     td:first-child, th:first-child{ text-align:left }
 
-    .tooltip{ position:fixed; pointer-events:none; background:var(--text); color:var(--card); padding:6px 8px; border-radius:6px; font-size:12px; transform:translate(-50%,-120%); box-shadow:0 6px 18px rgba(2,6,23,0.2); display:none; z-index:9999; line-height:1.12 }
+    .tooltip{ position:fixed; pointer-events:none; background:var(--tooltip-bg); color:var(--tooltip-text); padding:6px 8px; border-radius:6px; font-size:12px; transform:translate(-50%,-120%); box-shadow:0 6px 18px rgba(2,6,23,0.2); display:none; z-index:9999; line-height:1.12 }
     .small{ font-size:12px; color:var(--muted) }
 
     /* tiny responsive tweaks */
@@ -138,14 +182,9 @@
       .kpis{ grid-template-columns:repeat(2,1fr) }
     }
 
-    /* Theme toggle switch */
-    .theme-toggle{ display:flex; align-items:center; gap:8px; color:var(--muted); font-weight:600 }
-    .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-    .switch input {display:none;}
-    .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#cbd5e1; transition:.3s; border-radius:34px; }
-    .slider:before { position:absolute; content:""; height:18px; width:18px; left:4px; bottom:3px; background:white; transition:.3s; border-radius:50%; }
-    input:checked + .slider { background:linear-gradient(90deg,var(--brand),var(--accent)); }
-    input:checked + .slider:before { transform:translateX(22px); }
+    /* Theme toggle icon */
+    .theme-icon { width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font-size:16px; transition:background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease; box-shadow:0 8px 18px rgba(15,23,42,0.06); }
+    .theme-icon:hover{ transform:translateY(-1px); border-color:rgba(15,23,42,0.14); }
 
   </style>
 </head>
@@ -170,14 +209,7 @@
       <div style="font-size:13px; color:var(--muted)">
         User: <strong style="color:var(--brand)">Jeff L Customer</strong>
       </div>
-      <div class="theme-toggle" aria-label="Toggle dark mode">
-        <span aria-hidden="true">☀️</span>
-        <label class="switch">
-          <input type="checkbox" id="themeToggle" aria-label="Toggle dark mode" />
-          <span class="slider"></span>
-        </label>
-        <span aria-hidden="true">🌙</span>
-      </div>
+      <button id="themeToggle" class="theme-icon" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
     </div>
 
   </div>
@@ -1073,15 +1105,18 @@ window.addEventListener("DOMContentLoaded", () => {
     document.documentElement.setAttribute("data-theme", theme);
     document.body.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
-    toggle.checked = theme === "dark";
+    toggle.textContent = theme === "dark" ? "☀️" : "🌙";
+    toggle.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    toggle.setAttribute("title", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
   };
 
   const saved = localStorage.getItem("theme");
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   applyTheme(saved || (prefersDark ? "dark" : "light"));
 
-  toggle.addEventListener("change", () => {
-    applyTheme(toggle.checked ? "dark" : "light");
+  toggle.addEventListener("click", () => {
+    const nextTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(nextTheme);
   });
 });
 
